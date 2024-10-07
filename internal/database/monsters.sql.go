@@ -7,7 +7,25 @@ package database
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
+
+const fetchStat = `-- name: FetchStat :one
+SELECT monsterid, stattype, power FROM stats WHERE monsterID = $1::UUID AND statType = $2::TEXT
+`
+
+type FetchStatParams struct {
+	Column1 uuid.UUID
+	Column2 string
+}
+
+func (q *Queries) FetchStat(ctx context.Context, arg FetchStatParams) (Stat, error) {
+	row := q.db.QueryRow(ctx, fetchStat, arg.Column1, arg.Column2)
+	var i Stat
+	err := row.Scan(&i.Monsterid, &i.Stattype, &i.Power)
+	return i, err
+}
 
 const listMonsters = `-- name: ListMonsters :many
 SELECT id, name, type, basehp FROM monster

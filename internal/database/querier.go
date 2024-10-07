@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	FetchStat(ctx context.Context, arg FetchStatParams) (Stat, error)
 	ListMonsters(ctx context.Context) ([]Monster, error)
 }
 

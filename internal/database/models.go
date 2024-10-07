@@ -26,3 +26,9 @@ type Movemap struct {
 	Monsterid uuid.UUID
 	Moveid    uuid.UUID
 }
+
+type Stat struct {
+	Monsterid uuid.UUID
+	Stattype  string
+	Power     int32
+}
