@@ -8,20 +8,20 @@ import (
 )
 
 type Battle struct {
-	db database.Querier
+	db       database.Querier
 	Monsters []*BattleMon
 }
 
 type BattleMon struct {
 	Monster *database.Monster
-	LiveHp int32
-	Speed int32
+	LiveHp  int32
+	Speed   int32
 }
 
 func NewBattle(ctx context.Context, db database.Querier, monsters []database.Monster) (*Battle, error) {
 	var BattleMonsters []*BattleMon
 	for _, mon := range monsters {
-		params := database.FetchStatParams {
+		params := database.FetchStatParams{
 			Column1: mon.ID,
 			Column2: "Speed",
 		}
@@ -31,13 +31,13 @@ func NewBattle(ctx context.Context, db database.Querier, monsters []database.Mon
 		}
 		battleMon := &BattleMon{
 			Monster: &mon,
-			LiveHp: mon.Basehp,
-			Speed: speed.Power,
+			LiveHp:  mon.Basehp,
+			Speed:   speed.Power,
 		}
 		BattleMonsters = append(BattleMonsters, battleMon)
 	}
 	return &Battle{
-		db: db,
+		db:       db,
 		Monsters: BattleMonsters,
 	}, nil
 }
@@ -68,4 +68,3 @@ func (b *Battle) TurnDecider() *BattleMon {
 	}
 	return maxMon
 }
-
