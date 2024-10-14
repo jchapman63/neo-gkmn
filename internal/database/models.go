@@ -23,6 +23,10 @@ type Movemap struct {
 	Moveid    string
 }
 
+type SchemaMigration struct {
+	Version string
+}
+
 type Stat struct {
 	Monsterid string
 	Stattype  string
