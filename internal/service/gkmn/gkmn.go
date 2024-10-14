@@ -2,6 +2,7 @@ package gkmn
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -15,6 +16,7 @@ import (
 type GameHandler struct {
 	db      database.Querier
 	options []connect.HandlerOption
+	c       chan *pkg.Battle
 }
 
 // CreateBattle implements gkmnv1connect.GkmnServiceHandler.
@@ -34,6 +36,7 @@ func (h *GameHandler) CreateBattle(ctx context.Context, req *connect.Request[gkm
 	}
 
 	// TODO: put battle into a routine accessible channel
+	h.c <- battle
 
 	return connect.NewResponse(&gkmnv1.GkmnServiceCreateBattleResponse{
 		Id: battle.ID,
@@ -49,7 +52,7 @@ func WithHandlerOptions(opts ...connect.HandlerOption) GameServiceOption {
 }
 
 func NewGameService(db database.Querier, opts ...GameServiceOption) *GameHandler {
-	h := &GameHandler{db: db}
+	h := &GameHandler{db: db, c: make(chan *pkg.Battle)}
 	for _, o := range opts {
 		o(h)
 	}
@@ -64,4 +67,12 @@ func (h *GameHandler) Register(router *http.ServeMux) {
 // helps expose to reflection
 func (h *GameHandler) Name() string {
 	return gkmnv1connect.GkmnServiceName
+}
+
+// listens for new games to be created
+func (h *GameHandler) Listen() {
+	for {
+		game := <-h.c
+		fmt.Println(game.ID)
+	}
 }

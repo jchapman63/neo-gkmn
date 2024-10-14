@@ -44,12 +44,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	api.RegisterService(gkmn.NewGameService(
+	gameService := gkmn.NewGameService(
 		database.New(pool),
 		gkmn.WithHandlerOptions(
 			connect.WithInterceptors(validator),
 		),
-	))
+	)
+
+	api.RegisterService(gameService)
+	go gameService.Listen()
+
 	api.Serve()
 }
 
