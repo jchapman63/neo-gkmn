@@ -2,10 +2,12 @@ package gkmn
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	"connectrpc.com/connect"
 	"github.com/jchapman63/neo-gkmn/internal/database"
+	"github.com/jchapman63/neo-gkmn/internal/pkg"
 	gkmnv1 "github.com/jchapman63/neo-gkmn/internal/service/gkmn/v1"
 	"github.com/jchapman63/neo-gkmn/internal/service/gkmn/v1/gkmnv1connect"
 )
@@ -16,8 +18,29 @@ type GameHandler struct {
 }
 
 // CreateBattle implements gkmnv1connect.GkmnServiceHandler.
-func (h *GameHandler) CreateBattle(context.Context, *connect.Request[gkmnv1.NewBattleRequest]) (*connect.Response[gkmnv1.NewBattleResponse], error) {
-	panic("unimplemented")
+func (h *GameHandler) CreateBattle(ctx context.Context, req *connect.Request[gkmnv1.GkmnServiceCreateBattleRequest]) (*connect.Response[gkmnv1.GkmnServiceCreateBattleResponse], error) {
+	monsters := req.Msg.GetMonsters()
+
+	var dbMon []*database.Monster
+	for _, mon := range monsters {
+		mapped := database.Monster{
+			ID:     mon.GetId(),
+			Name:   mon.GetName(),
+			Type:   mon.GetType(),
+			Basehp: mon.GetBaseHp(),
+		}
+		dbMon = append(dbMon, &mapped)
+	}
+
+	battle, err := pkg.NewBattle(ctx, h.db, dbMon)
+	if err != nil {
+		slog.Error("could not create new battle", "err", err)
+		return nil, err
+	}
+
+	return connect.NewResponse(&gkmnv1.GkmnServiceCreateBattleResponse{
+		Id: battle.ID,
+	}), nil
 }
 
 type GameServiceOption func(n *GameHandler)

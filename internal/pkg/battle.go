@@ -8,7 +8,7 @@ import (
 )
 
 type Battle struct {
-	id       string
+	ID       string
 	db       database.Querier
 	Monsters []*BattleMon
 }
@@ -19,7 +19,7 @@ type BattleMon struct {
 	Speed   int32
 }
 
-func NewBattle(ctx context.Context, db database.Querier, monsters []database.Monster) (*Battle, error) {
+func NewBattle(ctx context.Context, db database.Querier, monsters []*database.Monster) (*Battle, error) {
 	var BattleMonsters []*BattleMon
 	for _, mon := range monsters {
 		params := database.FetchStatParams{
@@ -31,22 +31,22 @@ func NewBattle(ctx context.Context, db database.Querier, monsters []database.Mon
 			return nil, err
 		}
 		battleMon := &BattleMon{
-			Monster: &mon,
+			Monster: mon,
 			LiveHp:  mon.Basehp,
 			Speed:   speed.Power,
 		}
 		BattleMonsters = append(BattleMonsters, battleMon)
 	}
 	return &Battle{
-		id:       uuid.NewString(),
+		ID:       uuid.NewString(),
 		db:       db,
 		Monsters: BattleMonsters,
 	}, nil
 }
 
-func (b *Battle) Damage(victim uuid.UUID, move database.Move) {
+func (b *Battle) Damage(victimID string, move database.Move) {
 	for _, mon := range b.Monsters {
-		if mon.Monster.ID.String() == victim.String() {
+		if mon.Monster.ID == victimID {
 			mon.LiveHp -= move.Power
 		}
 	}

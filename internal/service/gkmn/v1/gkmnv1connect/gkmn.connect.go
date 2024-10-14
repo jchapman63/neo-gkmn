@@ -46,7 +46,7 @@ var (
 
 // GkmnServiceClient is a client for the jchapman63.gkmn.v1.GkmnService service.
 type GkmnServiceClient interface {
-	CreateBattle(context.Context, *connect.Request[v1.NewBattleRequest]) (*connect.Response[v1.NewBattleResponse], error)
+	CreateBattle(context.Context, *connect.Request[v1.GkmnServiceCreateBattleRequest]) (*connect.Response[v1.GkmnServiceCreateBattleResponse], error)
 }
 
 // NewGkmnServiceClient constructs a client for the jchapman63.gkmn.v1.GkmnService service. By
@@ -59,7 +59,7 @@ type GkmnServiceClient interface {
 func NewGkmnServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) GkmnServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &gkmnServiceClient{
-		createBattle: connect.NewClient[v1.NewBattleRequest, v1.NewBattleResponse](
+		createBattle: connect.NewClient[v1.GkmnServiceCreateBattleRequest, v1.GkmnServiceCreateBattleResponse](
 			httpClient,
 			baseURL+GkmnServiceCreateBattleProcedure,
 			connect.WithSchema(gkmnServiceCreateBattleMethodDescriptor),
@@ -70,17 +70,17 @@ func NewGkmnServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 
 // gkmnServiceClient implements GkmnServiceClient.
 type gkmnServiceClient struct {
-	createBattle *connect.Client[v1.NewBattleRequest, v1.NewBattleResponse]
+	createBattle *connect.Client[v1.GkmnServiceCreateBattleRequest, v1.GkmnServiceCreateBattleResponse]
 }
 
 // CreateBattle calls jchapman63.gkmn.v1.GkmnService.CreateBattle.
-func (c *gkmnServiceClient) CreateBattle(ctx context.Context, req *connect.Request[v1.NewBattleRequest]) (*connect.Response[v1.NewBattleResponse], error) {
+func (c *gkmnServiceClient) CreateBattle(ctx context.Context, req *connect.Request[v1.GkmnServiceCreateBattleRequest]) (*connect.Response[v1.GkmnServiceCreateBattleResponse], error) {
 	return c.createBattle.CallUnary(ctx, req)
 }
 
 // GkmnServiceHandler is an implementation of the jchapman63.gkmn.v1.GkmnService service.
 type GkmnServiceHandler interface {
-	CreateBattle(context.Context, *connect.Request[v1.NewBattleRequest]) (*connect.Response[v1.NewBattleResponse], error)
+	CreateBattle(context.Context, *connect.Request[v1.GkmnServiceCreateBattleRequest]) (*connect.Response[v1.GkmnServiceCreateBattleResponse], error)
 }
 
 // NewGkmnServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -108,6 +108,6 @@ func NewGkmnServiceHandler(svc GkmnServiceHandler, opts ...connect.HandlerOption
 // UnimplementedGkmnServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedGkmnServiceHandler struct{}
 
-func (UnimplementedGkmnServiceHandler) CreateBattle(context.Context, *connect.Request[v1.NewBattleRequest]) (*connect.Response[v1.NewBattleResponse], error) {
+func (UnimplementedGkmnServiceHandler) CreateBattle(context.Context, *connect.Request[v1.GkmnServiceCreateBattleRequest]) (*connect.Response[v1.GkmnServiceCreateBattleResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("jchapman63.gkmn.v1.GkmnService.CreateBattle is not implemented"))
 }

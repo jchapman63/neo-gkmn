@@ -7,8 +7,6 @@ package database
 
 import (
 	"context"
-
-	"github.com/google/uuid"
 )
 
 const fetchStat = `-- name: FetchStat :one
@@ -16,7 +14,7 @@ SELECT monsterid, stattype, power FROM stats WHERE monsterID = $1::UUID AND stat
 `
 
 type FetchStatParams struct {
-	Column1 uuid.UUID
+	Column1 string
 	Column2 string
 }
 

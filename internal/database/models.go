@@ -4,31 +4,27 @@
 
 package database
 
-import (
-	"github.com/google/uuid"
-)
-
 type Monster struct {
-	ID     uuid.UUID
+	ID     string
 	Name   string
 	Type   string
 	Basehp int32
 }
 
 type Move struct {
-	ID    uuid.UUID
+	ID    string
 	Name  string
 	Power int32
 	Type  string
 }
 
 type Movemap struct {
-	Monsterid uuid.UUID
-	Moveid    uuid.UUID
+	Monsterid string
+	Moveid    string
 }
 
 type Stat struct {
-	Monsterid uuid.UUID
+	Monsterid string
 	Stattype  string
 	Power     int32
 }

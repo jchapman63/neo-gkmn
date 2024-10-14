@@ -57,7 +57,7 @@ func main() {
 func testBattle() {
 	// simulate db queried bulbasaur
 	bulbasaur := database.Monster{
-		ID:     uuid.New(),
+		ID:     uuid.NewString(),
 		Name:   "bulbasaur",
 		Type:   "grass",
 		Basehp: 32,
@@ -65,7 +65,7 @@ func testBattle() {
 
 	// move from db
 	move := database.Move{
-		ID:    uuid.New(),
+		ID:    uuid.NewString(),
 		Name:  "tackle",
 		Power: 10,
 	}

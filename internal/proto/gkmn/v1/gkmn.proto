@@ -2,28 +2,41 @@ syntax = "proto3";
 
 package jchapman63.gkmn.v1;
 
+import "buf/validate/validate.proto";
+
 service GkmnService {
-	rpc CreateBattle(NewBattleRequest) returns (NewBattleResponse) {}
+	rpc CreateBattle(GkmnServiceCreateBattleRequest) returns (GkmnServiceCreateBattleResponse) {}
 }
 
 message Monster {
-	string id = 1;
-	string name = 2;
-	int32 baseHp = 3;
+	string id = 1 [
+		(buf.validate.field).string.uuid = true
+	];
+	string name = 2 [
+		(buf.validate.field).required = true
+	];
+	string type = 4 [
+		(buf.validate.field).required = true
+	];
+	int32 base_hp = 3 [
+		(buf.validate.field).required = true
+	];
 }
 
 message BattleMonster {
 	Monster monster = 1;
-	int32 liveHp = 2;
+	int32 live_hp = 2;
 	int32 speed = 3;
 }
 
-
-message NewBattleRequest {
-	repeated Monster monsters = 1;
+message GkmnServiceCreateBattleRequest {
+	repeated Monster monsters = 1 [
+		(buf.validate.field).required = true
+	];
 }
 
-message NewBattleResponse {
-	string id = 1;
-	repeated BattleMonster battleMonsters = 2;
+message GkmnServiceCreateBattleResponse {
+	string id = 1 [
+		(buf.validate.field).string.uuid = true
+	];
 }
