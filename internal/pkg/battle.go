@@ -8,6 +8,7 @@ import (
 )
 
 type Battle struct {
+	id       string
 	db       database.Querier
 	Monsters []*BattleMon
 }
@@ -37,6 +38,7 @@ func NewBattle(ctx context.Context, db database.Querier, monsters []database.Mon
 		BattleMonsters = append(BattleMonsters, battleMon)
 	}
 	return &Battle{
+		id:       uuid.NewString(),
 		db:       db,
 		Monsters: BattleMonsters,
 	}, nil
