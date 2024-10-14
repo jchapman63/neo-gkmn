@@ -1,0 +1,17 @@
+version: v2
+#clean: true
+managed:
+  enabled: true
+  override:
+    - file_option: go_package_prefix
+      value: github.com/jchapman63/neo-gkmn/internal/service
+  disable:
+    - file_option: go_package_prefix
+      module: buf.build/bufbuild/protovalidate
+plugins:
+  - local: protoc-gen-go
+    out: internal/service
+    opt: paths=source_relative
+  - local: protoc-gen-connect-go
+    out: internal/service
+    opt: paths=source_relative

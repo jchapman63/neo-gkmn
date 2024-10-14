@@ -1,0 +1,14 @@
+version: v2
+modules:
+  - path: proto
+lint:
+  use:
+    - STANDARD
+  except:
+    # Disable rule requiring the directory structure to match the package name
+    - PACKAGE_DIRECTORY_MATCH
+breaking:
+  use:
+    - FILE
+deps:
+  - buf.build/bufbuild/protovalidate
