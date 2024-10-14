@@ -1,29 +1,29 @@
-synax = "proto3";
+syntax = "proto3";
 
 package jchapman63.gkmn.v1;
 
 service GkmnService {
-	rpc CreateBattle(NewBattleRequest) returns NewBattleResponse {}
+	rpc CreateBattle(NewBattleRequest) returns (NewBattleResponse) {}
 }
 
 message Monster {
-	string id
-	string name
-	int32 baseHp
+	string id = 1;
+	string name = 2;
+	int32 baseHp = 3;
 }
 
 message BattleMonster {
-	Monster monster
-	int32 liveHp
-	int32 speed
+	Monster monster = 1;
+	int32 liveHp = 2;
+	int32 speed = 3;
 }
 
 
 message NewBattleRequest {
-	repeated Monster
+	repeated Monster monsters = 1;
 }
 
 message NewBattleResponse {
-	string id
-	repeated BattleMonster
+	string id = 1;
+	repeated BattleMonster battleMonsters = 2;
 }
