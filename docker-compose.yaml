@@ -1,0 +1,24 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-cloud}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./db/local/initdb_scripts:/docker-entrypoint-initdb.d
+volumes:
+  postgres:
+networks:
+  postgres:
