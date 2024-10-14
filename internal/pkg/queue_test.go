@@ -11,11 +11,11 @@ import (
 func TestMonsterPriority(t *testing.T) {
 	tests := []struct {
 		name  string
-		items []Item
+		items []*Item
 	}{
 		{
 			name: "fastest of two monsters",
-			items: []Item{
+			items: []*Item{
 				{monID: uuid.New(), speed: 80, priority: 0},
 				{monID: uuid.New(), speed: 55, priority: 0},
 			},
@@ -24,16 +24,17 @@ func TestMonsterPriority(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			pq := make(PriorityQueue, len(tt.items))
-			for i, item := range tt.items {
-				pq[i] = &item
-			}
+			pq := make(PriorityQueue, 0)
 			heap.Init(&pq)
-
+			for _, item := range tt.items {
+				pq.Push(item)
+			}
 			first := pq.Pop()
 			firstSpeed := first.(*Item).speed
+
 			second := pq.Pop()
 			secondSpeed := second.(*Item).speed
+
 			assert.Greater(t, firstSpeed, secondSpeed)
 		})
 	}

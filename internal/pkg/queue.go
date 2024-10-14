@@ -20,6 +20,8 @@ import (
 	"github.com/google/uuid"
 )
 
+var speed_limit int = 999
+
 // An Item is something we manage in a priority queue.
 type Item struct {
 	monID    uuid.UUID // The value of the item; arbitrary.
@@ -49,7 +51,14 @@ func (pq *PriorityQueue) Push(x any) {
 	n := len(*pq)
 	item := x.(*Item)
 	item.index = n
+
 	*pq = append(*pq, item)
+
+	pq.registerPriority(item)
+	if len(*pq) > 1 {
+		fmt.Println("fixing heap")
+		heap.Fix(pq, item.index)
+	}
 }
 
 func (pq *PriorityQueue) Pop() any {
@@ -62,46 +71,9 @@ func (pq *PriorityQueue) Pop() any {
 	return item
 }
 
-// update modifies the priority and value of an Item in the queue.
-func (pq *PriorityQueue) update(item *Item, monID uuid.UUID, priority int) {
-	item.monID = monID
-	item.priority = priority
-	heap.Fix(pq, item.index)
-}
-
-// This example creates a PriorityQueue with some items, adds and manipulates an item,
-// and then removes the items in priority order.
-func main() {
-	// Some items and their priorities.
-	items := map[uuid.UUID]int{
-		uuid.New(): 3, uuid.New(): 2, uuid.New(): 4,
-	}
-
-	// Create a priority queue, put the items in it, and
-	// establish the priority queue (heap) invariants.
-	pq := make(PriorityQueue, len(items))
-	i := 0
-	for id, priority := range items {
-		pq[i] = &Item{
-			monID:    id,
-			priority: priority,
-			index:    i,
-		}
-		i++
-	}
-	heap.Init(&pq)
-
-	// Insert a new item and then modify its priority.
-	item := &Item{
-		monID:    uuid.New(),
-		priority: 1,
-	}
-	heap.Push(&pq, item)
-	pq.update(item, item.monID, 5)
-
-	// Take the items out; they arrive in decreasing priority order.
-	for pq.Len() > 0 {
-		item := heap.Pop(&pq).(*Item)
-		fmt.Printf("%.2d:%s ", item.priority, item.monID)
-	}
+// Determine the priority of the item
+// based on the associated monster's speed (for now)
+func (pq *PriorityQueue) registerPriority(item *Item) {
+	// faster items have higher priority
+	item.priority = speed_limit - item.speed
 }
