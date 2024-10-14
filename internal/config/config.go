@@ -7,7 +7,12 @@ import (
 )
 
 type Config struct {
-	Server Server `fig:"server" required:"true"`
+	Server   Server   `fig:"server" required:"true"`
+	Database Database `fig:"database" required:"true"`
+}
+
+type Database struct {
+	URL string `fig:"url" required:"true"`
 }
 
 type Server struct {

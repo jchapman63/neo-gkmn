@@ -5,11 +5,13 @@ import (
 	"net/http"
 
 	"connectrpc.com/grpchealth"
+	"connectrpc.com/grpcreflect"
 	"github.com/jchapman63/neo-gkmn/internal/config"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 )
 
+// connect services will implement this
 type Service interface {
 	Register(*http.ServeMux)
 	Name() string
@@ -17,20 +19,27 @@ type Service interface {
 
 type Server struct {
 	*http.ServeMux
-	health *grpchealth.StaticChecker
-	config *config.Server
+	reflection *Reflector
+	health     *grpchealth.StaticChecker
+	config     *config.Server
 }
 
 func New(cfg *config.Server) (*Server, error) {
 	api := &Server{
-		ServeMux: http.NewServeMux(),
-		health:   grpchealth.NewStaticChecker(),
-		config:   cfg,
+		ServeMux:   http.NewServeMux(),
+		reflection: NewReflector(),
+		health:     grpchealth.NewStaticChecker(),
+		config:     cfg,
 	}
 
 	api.registerHealthService()
+	api.registerReflectionService()
 
 	return api, nil
+}
+
+func (s *Server) registerReflectionService() {
+	s.Handle(grpcreflect.NewHandlerV1Alpha(grpcreflect.NewReflector(s.reflection)))
 }
 
 func (s *Server) registerHealthService() {
