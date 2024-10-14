@@ -9,8 +9,35 @@ import (
 	"context"
 )
 
+const fetchMonster = `-- name: FetchMonster :one
+SELECT
+    id, name, type, basehp
+FROM
+    monster
+WHERE
+    id = $1
+`
+
+func (q *Queries) FetchMonster(ctx context.Context, id string) (Monster, error) {
+	row := q.db.QueryRow(ctx, fetchMonster, id)
+	var i Monster
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Type,
+		&i.Basehp,
+	)
+	return i, err
+}
+
 const fetchStat = `-- name: FetchStat :one
-SELECT monsterid, stattype, power FROM stats WHERE monsterID = $1::UUID AND statType = $2::TEXT
+SELECT
+    monsterid, stattype, power
+FROM
+    stats
+WHERE
+    monsterID = $1::uuid
+    AND statType = $2::text
 `
 
 type FetchStatParams struct {
@@ -26,7 +53,10 @@ func (q *Queries) FetchStat(ctx context.Context, arg FetchStatParams) (Stat, err
 }
 
 const listMonsters = `-- name: ListMonsters :many
-SELECT id, name, type, basehp FROM monster
+SELECT
+    id, name, type, basehp
+FROM
+    monster
 `
 
 func (q *Queries) ListMonsters(ctx context.Context) ([]Monster, error) {

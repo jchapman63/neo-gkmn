@@ -19,24 +19,21 @@ type GameHandler struct {
 
 // CreateBattle implements gkmnv1connect.GkmnServiceHandler.
 func (h *GameHandler) CreateBattle(ctx context.Context, req *connect.Request[gkmnv1.GkmnServiceCreateBattleRequest]) (*connect.Response[gkmnv1.GkmnServiceCreateBattleResponse], error) {
-	monsters := req.Msg.GetMonsters()
 
-	var dbMon []*database.Monster
-	for _, mon := range monsters {
-		mapped := database.Monster{
-			ID:     mon.GetId(),
-			Name:   mon.GetName(),
-			Type:   mon.GetType(),
-			Basehp: mon.GetBaseHp(),
-		}
-		dbMon = append(dbMon, &mapped)
+	monsterRequests := req.Msg.GetMonIds()
+
+	var monIds []string
+	for _, mon := range monsterRequests {
+		monIds = append(monIds, mon.Id)
 	}
 
-	battle, err := pkg.NewBattle(ctx, h.db, dbMon)
+	battle, err := pkg.NewBattle(ctx, h.db, monIds)
 	if err != nil {
 		slog.Error("could not create new battle", "err", err)
 		return nil, err
 	}
+
+	// TODO: put battle into a routine accessible channel
 
 	return connect.NewResponse(&gkmnv1.GkmnServiceCreateBattleResponse{
 		Id: battle.ID,

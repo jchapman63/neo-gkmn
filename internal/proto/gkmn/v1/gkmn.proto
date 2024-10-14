@@ -23,6 +23,12 @@ message Monster {
 	];
 }
 
+message RequestMonster {
+	string id = 1 [
+		(buf.validate.field).string.uuid = true
+	];
+}
+
 message BattleMonster {
 	Monster monster = 1;
 	int32 live_hp = 2;
@@ -30,10 +36,11 @@ message BattleMonster {
 }
 
 message GkmnServiceCreateBattleRequest {
-	repeated Monster monsters = 1 [
+	repeated RequestMonster mon_ids = 1 [
 		(buf.validate.field).required = true
 	];
 }
+
 
 message GkmnServiceCreateBattleResponse {
 	string id = 1 [

@@ -2,6 +2,8 @@ package pkg
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 
 	"github.com/google/uuid"
 	"github.com/jchapman63/neo-gkmn/internal/database"
@@ -19,19 +21,27 @@ type BattleMon struct {
 	Speed   int32
 }
 
-func NewBattle(ctx context.Context, db database.Querier, monsters []*database.Monster) (*Battle, error) {
+func NewBattle(ctx context.Context, db database.Querier, monIDs []string) (*Battle, error) {
 	var BattleMonsters []*BattleMon
-	for _, mon := range monsters {
+	for _, id := range monIDs {
 		params := database.FetchStatParams{
-			Column1: mon.ID,
-			Column2: "Speed",
+			Column1: id,
+			Column2: "speed",
 		}
 		speed, err := db.FetchStat(ctx, params)
 		if err != nil {
+			msg := fmt.Sprintf("failed to fetch %s stats for monID: %s", params.Column2, params.Column1)
+			slog.Error(msg, "err", err)
+			return nil, err
+		}
+		mon, err := db.FetchMonster(ctx, id)
+		if err != nil {
+			msg := fmt.Sprintf("failed to fetch monster by id: %s", id)
+			slog.Error(msg, "err", err)
 			return nil, err
 		}
 		battleMon := &BattleMon{
-			Monster: mon,
+			Monster: &mon,
 			LiveHp:  mon.Basehp,
 			Speed:   speed.Power,
 		}
@@ -61,6 +71,8 @@ func (b *Battle) IsOver() bool {
 	return false
 }
 
+// TODO : make use of priority queue instead
+// pqueue will change the structure of Battle
 func (b *Battle) TurnDecider() *BattleMon {
 	maxMon := b.Monsters[0]
 	for _, mon := range b.Monsters {
