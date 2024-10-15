@@ -30,6 +30,27 @@ func (q *Queries) FetchMonster(ctx context.Context, id string) (Monster, error) 
 	return i, err
 }
 
+const fetchMove = `-- name: FetchMove :one
+SELECT
+    id, name, power, type
+FROM
+    MOVE
+WHERE
+    id = $1
+`
+
+func (q *Queries) FetchMove(ctx context.Context, id string) (Move, error) {
+	row := q.db.QueryRow(ctx, fetchMove, id)
+	var i Move
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Power,
+		&i.Type,
+	)
+	return i, err
+}
+
 const fetchStat = `-- name: FetchStat :one
 SELECT
     monsterid, stattype, power

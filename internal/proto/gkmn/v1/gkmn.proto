@@ -6,6 +6,7 @@ import "buf/validate/validate.proto";
 
 service GkmnService {
 	rpc CreateBattle(GkmnServiceCreateBattleRequest) returns (GkmnServiceCreateBattleResponse) {}
+	rpc AttackMonster(GkmnServiceBattleAttackMonsterRequest) returns (GkmnServiceCreateBattleResponse) {}
 }
 
 message Monster {
@@ -46,4 +47,23 @@ message GkmnServiceCreateBattleResponse {
 	string id = 1 [
 		(buf.validate.field).string.uuid = true
 	];
+}
+
+message GkmnServiceBattleAttackMonsterRequest {
+	string battle_id = 1 [
+		(buf.validate.field).string.uuid = true,
+		(buf.validate.field).required = true
+	];
+	string move_id = 2 [
+		(buf.validate.field).string.uuid = true,
+		(buf.validate.field).required = true
+	];
+	string victim_id = 3 [
+		(buf.validate.field).string.uuid = true,
+		(buf.validate.field).required = true
+	];
+}
+
+message GkmnServiceBattleAttackMonsterResponse {
+	
 }

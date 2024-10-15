@@ -21,3 +21,11 @@ FROM
 WHERE
     id = $1;
 
+-- name: FetchMove :one
+SELECT
+    *
+FROM
+    MOVE
+WHERE
+    id = $1;
+

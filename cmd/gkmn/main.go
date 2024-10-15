@@ -52,7 +52,7 @@ func main() {
 	)
 
 	api.RegisterService(gameService)
-	go gameService.Listen()
+	go gameService.Listen(&ctx)
 
 	api.Serve()
 }

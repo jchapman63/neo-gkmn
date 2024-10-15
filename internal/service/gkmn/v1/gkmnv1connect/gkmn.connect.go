@@ -36,17 +36,22 @@ const (
 	// GkmnServiceCreateBattleProcedure is the fully-qualified name of the GkmnService's CreateBattle
 	// RPC.
 	GkmnServiceCreateBattleProcedure = "/jchapman63.gkmn.v1.GkmnService/CreateBattle"
+	// GkmnServiceAttackMonsterProcedure is the fully-qualified name of the GkmnService's AttackMonster
+	// RPC.
+	GkmnServiceAttackMonsterProcedure = "/jchapman63.gkmn.v1.GkmnService/AttackMonster"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	gkmnServiceServiceDescriptor            = v1.File_gkmn_v1_gkmn_proto.Services().ByName("GkmnService")
-	gkmnServiceCreateBattleMethodDescriptor = gkmnServiceServiceDescriptor.Methods().ByName("CreateBattle")
+	gkmnServiceServiceDescriptor             = v1.File_gkmn_v1_gkmn_proto.Services().ByName("GkmnService")
+	gkmnServiceCreateBattleMethodDescriptor  = gkmnServiceServiceDescriptor.Methods().ByName("CreateBattle")
+	gkmnServiceAttackMonsterMethodDescriptor = gkmnServiceServiceDescriptor.Methods().ByName("AttackMonster")
 )
 
 // GkmnServiceClient is a client for the jchapman63.gkmn.v1.GkmnService service.
 type GkmnServiceClient interface {
 	CreateBattle(context.Context, *connect.Request[v1.GkmnServiceCreateBattleRequest]) (*connect.Response[v1.GkmnServiceCreateBattleResponse], error)
+	AttackMonster(context.Context, *connect.Request[v1.GkmnServiceBattleAttackMonsterRequest]) (*connect.Response[v1.GkmnServiceCreateBattleResponse], error)
 }
 
 // NewGkmnServiceClient constructs a client for the jchapman63.gkmn.v1.GkmnService service. By
@@ -65,12 +70,19 @@ func NewGkmnServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(gkmnServiceCreateBattleMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		attackMonster: connect.NewClient[v1.GkmnServiceBattleAttackMonsterRequest, v1.GkmnServiceCreateBattleResponse](
+			httpClient,
+			baseURL+GkmnServiceAttackMonsterProcedure,
+			connect.WithSchema(gkmnServiceAttackMonsterMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // gkmnServiceClient implements GkmnServiceClient.
 type gkmnServiceClient struct {
-	createBattle *connect.Client[v1.GkmnServiceCreateBattleRequest, v1.GkmnServiceCreateBattleResponse]
+	createBattle  *connect.Client[v1.GkmnServiceCreateBattleRequest, v1.GkmnServiceCreateBattleResponse]
+	attackMonster *connect.Client[v1.GkmnServiceBattleAttackMonsterRequest, v1.GkmnServiceCreateBattleResponse]
 }
 
 // CreateBattle calls jchapman63.gkmn.v1.GkmnService.CreateBattle.
@@ -78,9 +90,15 @@ func (c *gkmnServiceClient) CreateBattle(ctx context.Context, req *connect.Reque
 	return c.createBattle.CallUnary(ctx, req)
 }
 
+// AttackMonster calls jchapman63.gkmn.v1.GkmnService.AttackMonster.
+func (c *gkmnServiceClient) AttackMonster(ctx context.Context, req *connect.Request[v1.GkmnServiceBattleAttackMonsterRequest]) (*connect.Response[v1.GkmnServiceCreateBattleResponse], error) {
+	return c.attackMonster.CallUnary(ctx, req)
+}
+
 // GkmnServiceHandler is an implementation of the jchapman63.gkmn.v1.GkmnService service.
 type GkmnServiceHandler interface {
 	CreateBattle(context.Context, *connect.Request[v1.GkmnServiceCreateBattleRequest]) (*connect.Response[v1.GkmnServiceCreateBattleResponse], error)
+	AttackMonster(context.Context, *connect.Request[v1.GkmnServiceBattleAttackMonsterRequest]) (*connect.Response[v1.GkmnServiceCreateBattleResponse], error)
 }
 
 // NewGkmnServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -95,10 +113,18 @@ func NewGkmnServiceHandler(svc GkmnServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(gkmnServiceCreateBattleMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	gkmnServiceAttackMonsterHandler := connect.NewUnaryHandler(
+		GkmnServiceAttackMonsterProcedure,
+		svc.AttackMonster,
+		connect.WithSchema(gkmnServiceAttackMonsterMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/jchapman63.gkmn.v1.GkmnService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case GkmnServiceCreateBattleProcedure:
 			gkmnServiceCreateBattleHandler.ServeHTTP(w, r)
+		case GkmnServiceAttackMonsterProcedure:
+			gkmnServiceAttackMonsterHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -110,4 +136,8 @@ type UnimplementedGkmnServiceHandler struct{}
 
 func (UnimplementedGkmnServiceHandler) CreateBattle(context.Context, *connect.Request[v1.GkmnServiceCreateBattleRequest]) (*connect.Response[v1.GkmnServiceCreateBattleResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("jchapman63.gkmn.v1.GkmnService.CreateBattle is not implemented"))
+}
+
+func (UnimplementedGkmnServiceHandler) AttackMonster(context.Context, *connect.Request[v1.GkmnServiceBattleAttackMonsterRequest]) (*connect.Response[v1.GkmnServiceCreateBattleResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("jchapman63.gkmn.v1.GkmnService.AttackMonster is not implemented"))
 }
