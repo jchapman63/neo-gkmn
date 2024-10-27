@@ -6,12 +6,15 @@ import "buf/validate/validate.proto";
 
 service GkmnService {
 	rpc CreateBattle(GkmnServiceCreateBattleRequest) returns (GkmnServiceCreateBattleResponse) {}
-	rpc AttackMonster(GkmnServiceBattleAttackMonsterRequest) returns (GkmnServiceCreateBattleResponse) {}
+	rpc AttackMonster(GkmnServiceAttackMonsterRequest) returns (GkmnServiceAttackMonsterResponse) {}
+	rpc ListMonsters(GkmnServiceBaseMonsterListRequest) returns (GkmnServiceBaseMonsterListResponse) {}
+	rpc ListBattleMonsters(GkmnServiceListBattleMonsterRequest) returns (GkmnServiceListBattleMonsterResponse) {}
 }
 
 message Monster {
 	string id = 1 [
-		(buf.validate.field).string.uuid = true
+		(buf.validate.field).string.uuid = true,
+		(buf.validate.field).required = true
 	];
 	string name = 2 [
 		(buf.validate.field).required = true
@@ -20,6 +23,22 @@ message Monster {
 		(buf.validate.field).required = true
 	];
 	int32 base_hp = 3 [
+		(buf.validate.field).required = true
+	];
+}
+
+message Move {
+	string id = 1 [
+		(buf.validate.field).string.uuid = true,
+		(buf.validate.field).required = true
+	];
+	string name = 2 [
+		(buf.validate.field).required = true
+	];
+	string type = 3 [
+		(buf.validate.field).required = true
+	];
+	int32 power = 4 [
 		(buf.validate.field).required = true
 	];
 }
@@ -34,6 +53,21 @@ message BattleMonster {
 	Monster monster = 1;
 	int32 live_hp = 2;
 	int32 speed = 3;
+	repeated Move moves = 4;
+}
+
+message GkmnServiceListBattleMonsterRequest{
+	string battle_id = 1 [
+		(buf.validate.field).string.uuid = true,
+		(buf.validate.field).required = true
+	];
+}
+message GkmnServiceListBattleMonsterResponse {
+	string battle_id = 1 [
+		(buf.validate.field).string.uuid = true,
+		(buf.validate.field).required = true
+	];
+	repeated BattleMonster battle_monsters = 2;
 }
 
 message GkmnServiceCreateBattleRequest {
@@ -47,9 +81,10 @@ message GkmnServiceCreateBattleResponse {
 	string id = 1 [
 		(buf.validate.field).string.uuid = true
 	];
+	repeated BattleMonster battle_monsters = 2;
 }
 
-message GkmnServiceBattleAttackMonsterRequest {
+message GkmnServiceAttackMonsterRequest {
 	string battle_id = 1 [
 		(buf.validate.field).string.uuid = true,
 		(buf.validate.field).required = true
@@ -64,6 +99,10 @@ message GkmnServiceBattleAttackMonsterRequest {
 	];
 }
 
-message GkmnServiceBattleAttackMonsterResponse {
-	
+message GkmnServiceAttackMonsterResponse {}
+
+message GkmnServiceBaseMonsterListRequest {}
+
+message GkmnServiceBaseMonsterListResponse {
+	repeated Monster monsters = 1;
 }

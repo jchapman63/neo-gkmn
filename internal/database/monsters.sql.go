@@ -51,6 +51,35 @@ func (q *Queries) FetchMove(ctx context.Context, id string) (Move, error) {
 	return i, err
 }
 
+const fetchMovesForMon = `-- name: FetchMovesForMon :many
+SELECT
+    monsterid, moveid
+FROM
+    movemap
+WHERE
+    monsterid = $1
+`
+
+func (q *Queries) FetchMovesForMon(ctx context.Context, monsterid string) ([]Movemap, error) {
+	rows, err := q.db.Query(ctx, fetchMovesForMon, monsterid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Movemap
+	for rows.Next() {
+		var i Movemap
+		if err := rows.Scan(&i.Monsterid, &i.Moveid); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const fetchStat = `-- name: FetchStat :one
 SELECT
     monsterid, stattype, power

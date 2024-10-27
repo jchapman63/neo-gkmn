@@ -11,6 +11,7 @@ import (
 type Querier interface {
 	FetchMonster(ctx context.Context, id string) (Monster, error)
 	FetchMove(ctx context.Context, id string) (Move, error)
+	FetchMovesForMon(ctx context.Context, monsterid string) ([]Movemap, error)
 	FetchStat(ctx context.Context, arg FetchStatParams) (Stat, error)
 	ListMonsters(ctx context.Context) ([]Monster, error)
 }

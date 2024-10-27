@@ -29,3 +29,11 @@ FROM
 WHERE
     id = $1;
 
+-- name: FetchMovesForMon :many
+SELECT
+    *
+FROM
+    movemap
+WHERE
+    monsterid = $1;
+
