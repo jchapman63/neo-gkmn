@@ -16,18 +16,20 @@ import (
 var ATTACK string = "ATTACK"
 
 type ActionRequest struct {
-	battleID string
-	action   string
-	request  *connect.Request[gkmnv1.GkmnServiceAttackMonsterRequest]
+	battleID  string
+	action    string
+	request   *connect.Request[gkmnv1.GkmnServiceAttackMonsterRequest]
+	completed bool
 }
 
 type AlterRequest func()
 
 func NewActionRequest(battleID string, action string, req *connect.Request[gkmnv1.GkmnServiceAttackMonsterRequest], opts ...func(*ActionRequest)) *ActionRequest {
 	a := &ActionRequest{
-		battleID: battleID,
-		action:   action,
-		request:  req,
+		battleID:  battleID,
+		action:    action,
+		request:   req,
+		completed: false,
 	}
 
 	for _, o := range opts {
@@ -86,5 +88,6 @@ func (h *GameHandler) Listen(ctx *context.Context) {
 			}
 			battle.Damage(actReq.request.Msg.GetVictimId(), move)
 		}
+		actReq.completed = true
 	}
 }

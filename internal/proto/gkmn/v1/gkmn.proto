@@ -115,7 +115,9 @@ message GkmnServiceAttackMonsterResponse {
 message GkmnServiceBaseMonsterListRequest {}
 
 message GkmnServiceBaseMonsterListResponse {
-	repeated Monster monsters = 1;
+	repeated Monster monsters = 1 [
+		(buf.validate.field).required = true
+	];
 }
 
 message GkmnServiceActiveBattleListRequest {}
