@@ -9,6 +9,15 @@ service GkmnService {
 	rpc AttackMonster(GkmnServiceAttackMonsterRequest) returns (GkmnServiceAttackMonsterResponse) {}
 	rpc ListMonsters(GkmnServiceBaseMonsterListRequest) returns (GkmnServiceBaseMonsterListResponse) {}
 	rpc ListBattleMonsters(GkmnServiceListBattleMonsterRequest) returns (GkmnServiceListBattleMonsterResponse) {}
+	rpc ListActiveBattles(GkmnServiceActiveBattleListRequest) returns (GkmnServiceActiveBattleListResponse) {}
+}
+
+message BattleState {
+	string battle_id = 1 [
+		(buf.validate.field).string.uuid = true
+	];
+	bool isOver = 2;
+	repeated BattleMonster battle_monsters = 3;
 }
 
 message Monster {
@@ -99,10 +108,20 @@ message GkmnServiceAttackMonsterRequest {
 	];
 }
 
-message GkmnServiceAttackMonsterResponse {}
+message GkmnServiceAttackMonsterResponse {
+	BattleState battle_state = 1;
+}
 
 message GkmnServiceBaseMonsterListRequest {}
 
 message GkmnServiceBaseMonsterListResponse {
 	repeated Monster monsters = 1;
+}
+
+message GkmnServiceActiveBattleListRequest {}
+message GkmnServiceActiveBattleListResponse {
+	repeated string battle_ids = 1 [
+		(buf.validate.field).string.uuid = true,
+		(buf.validate.field).required = true
+	];
 }

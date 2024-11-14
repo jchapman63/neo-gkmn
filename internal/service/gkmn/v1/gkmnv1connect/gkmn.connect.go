@@ -45,6 +45,9 @@ const (
 	// GkmnServiceListBattleMonstersProcedure is the fully-qualified name of the GkmnService's
 	// ListBattleMonsters RPC.
 	GkmnServiceListBattleMonstersProcedure = "/jchapman63.gkmn.v1.GkmnService/ListBattleMonsters"
+	// GkmnServiceListActiveBattlesProcedure is the fully-qualified name of the GkmnService's
+	// ListActiveBattles RPC.
+	GkmnServiceListActiveBattlesProcedure = "/jchapman63.gkmn.v1.GkmnService/ListActiveBattles"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
@@ -54,6 +57,7 @@ var (
 	gkmnServiceAttackMonsterMethodDescriptor      = gkmnServiceServiceDescriptor.Methods().ByName("AttackMonster")
 	gkmnServiceListMonstersMethodDescriptor       = gkmnServiceServiceDescriptor.Methods().ByName("ListMonsters")
 	gkmnServiceListBattleMonstersMethodDescriptor = gkmnServiceServiceDescriptor.Methods().ByName("ListBattleMonsters")
+	gkmnServiceListActiveBattlesMethodDescriptor  = gkmnServiceServiceDescriptor.Methods().ByName("ListActiveBattles")
 )
 
 // GkmnServiceClient is a client for the jchapman63.gkmn.v1.GkmnService service.
@@ -62,6 +66,7 @@ type GkmnServiceClient interface {
 	AttackMonster(context.Context, *connect.Request[v1.GkmnServiceAttackMonsterRequest]) (*connect.Response[v1.GkmnServiceAttackMonsterResponse], error)
 	ListMonsters(context.Context, *connect.Request[v1.GkmnServiceBaseMonsterListRequest]) (*connect.Response[v1.GkmnServiceBaseMonsterListResponse], error)
 	ListBattleMonsters(context.Context, *connect.Request[v1.GkmnServiceListBattleMonsterRequest]) (*connect.Response[v1.GkmnServiceListBattleMonsterResponse], error)
+	ListActiveBattles(context.Context, *connect.Request[v1.GkmnServiceActiveBattleListRequest]) (*connect.Response[v1.GkmnServiceActiveBattleListResponse], error)
 }
 
 // NewGkmnServiceClient constructs a client for the jchapman63.gkmn.v1.GkmnService service. By
@@ -98,6 +103,12 @@ func NewGkmnServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(gkmnServiceListBattleMonstersMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		listActiveBattles: connect.NewClient[v1.GkmnServiceActiveBattleListRequest, v1.GkmnServiceActiveBattleListResponse](
+			httpClient,
+			baseURL+GkmnServiceListActiveBattlesProcedure,
+			connect.WithSchema(gkmnServiceListActiveBattlesMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -107,6 +118,7 @@ type gkmnServiceClient struct {
 	attackMonster      *connect.Client[v1.GkmnServiceAttackMonsterRequest, v1.GkmnServiceAttackMonsterResponse]
 	listMonsters       *connect.Client[v1.GkmnServiceBaseMonsterListRequest, v1.GkmnServiceBaseMonsterListResponse]
 	listBattleMonsters *connect.Client[v1.GkmnServiceListBattleMonsterRequest, v1.GkmnServiceListBattleMonsterResponse]
+	listActiveBattles  *connect.Client[v1.GkmnServiceActiveBattleListRequest, v1.GkmnServiceActiveBattleListResponse]
 }
 
 // CreateBattle calls jchapman63.gkmn.v1.GkmnService.CreateBattle.
@@ -129,12 +141,18 @@ func (c *gkmnServiceClient) ListBattleMonsters(ctx context.Context, req *connect
 	return c.listBattleMonsters.CallUnary(ctx, req)
 }
 
+// ListActiveBattles calls jchapman63.gkmn.v1.GkmnService.ListActiveBattles.
+func (c *gkmnServiceClient) ListActiveBattles(ctx context.Context, req *connect.Request[v1.GkmnServiceActiveBattleListRequest]) (*connect.Response[v1.GkmnServiceActiveBattleListResponse], error) {
+	return c.listActiveBattles.CallUnary(ctx, req)
+}
+
 // GkmnServiceHandler is an implementation of the jchapman63.gkmn.v1.GkmnService service.
 type GkmnServiceHandler interface {
 	CreateBattle(context.Context, *connect.Request[v1.GkmnServiceCreateBattleRequest]) (*connect.Response[v1.GkmnServiceCreateBattleResponse], error)
 	AttackMonster(context.Context, *connect.Request[v1.GkmnServiceAttackMonsterRequest]) (*connect.Response[v1.GkmnServiceAttackMonsterResponse], error)
 	ListMonsters(context.Context, *connect.Request[v1.GkmnServiceBaseMonsterListRequest]) (*connect.Response[v1.GkmnServiceBaseMonsterListResponse], error)
 	ListBattleMonsters(context.Context, *connect.Request[v1.GkmnServiceListBattleMonsterRequest]) (*connect.Response[v1.GkmnServiceListBattleMonsterResponse], error)
+	ListActiveBattles(context.Context, *connect.Request[v1.GkmnServiceActiveBattleListRequest]) (*connect.Response[v1.GkmnServiceActiveBattleListResponse], error)
 }
 
 // NewGkmnServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -167,6 +185,12 @@ func NewGkmnServiceHandler(svc GkmnServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(gkmnServiceListBattleMonstersMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	gkmnServiceListActiveBattlesHandler := connect.NewUnaryHandler(
+		GkmnServiceListActiveBattlesProcedure,
+		svc.ListActiveBattles,
+		connect.WithSchema(gkmnServiceListActiveBattlesMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/jchapman63.gkmn.v1.GkmnService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case GkmnServiceCreateBattleProcedure:
@@ -177,6 +201,8 @@ func NewGkmnServiceHandler(svc GkmnServiceHandler, opts ...connect.HandlerOption
 			gkmnServiceListMonstersHandler.ServeHTTP(w, r)
 		case GkmnServiceListBattleMonstersProcedure:
 			gkmnServiceListBattleMonstersHandler.ServeHTTP(w, r)
+		case GkmnServiceListActiveBattlesProcedure:
+			gkmnServiceListActiveBattlesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -200,4 +226,8 @@ func (UnimplementedGkmnServiceHandler) ListMonsters(context.Context, *connect.Re
 
 func (UnimplementedGkmnServiceHandler) ListBattleMonsters(context.Context, *connect.Request[v1.GkmnServiceListBattleMonsterRequest]) (*connect.Response[v1.GkmnServiceListBattleMonsterResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("jchapman63.gkmn.v1.GkmnService.ListBattleMonsters is not implemented"))
+}
+
+func (UnimplementedGkmnServiceHandler) ListActiveBattles(context.Context, *connect.Request[v1.GkmnServiceActiveBattleListRequest]) (*connect.Response[v1.GkmnServiceActiveBattleListResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("jchapman63.gkmn.v1.GkmnService.ListActiveBattles is not implemented"))
 }
