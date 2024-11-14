@@ -12,7 +12,7 @@ own.
 behavior notes:
 - non-existent battle id returns empty mon list
 with that id (okay, but useless). 404 type of response is better to use from connect
-- no relevant information is returned by attack end point
+- no relevant information is returned by attack end point. THIS SHOULD NOT BE THE CASE
 
 want:
 - end point that returns all active games (just id) DONE
