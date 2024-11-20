@@ -2,7 +2,6 @@ package gkmn
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 
 	"connectrpc.com/connect"
@@ -62,14 +61,9 @@ func (h *GameHandler) AttackMonster(ctx context.Context, req *connect.Request[gk
 
 	actReq := NewActionRequest(battleId, ATTACK, req)
 	h.c <- actReq
-
-	for actReq.completed == true {
-		// TODO, implement timeout logic
+	for actReq.completed != true {
 	}
 
-	fmt.Println("returning")
-	bmon := h.MapBattleMonsters(battleId)
-	fmt.Println(bmon[0].Monster.Name)
 	return connect.NewResponse(&gkmnv1.GkmnServiceAttackMonsterResponse{
 		BattleState: &gkmnv1.BattleState{
 			BattleMonsters: h.MapBattleMonsters(battleId),
