@@ -8,7 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	v1 "github.com/jchapman63/neo-gkmn/internal/service/gkmn/v1"
+	v1 "github.com/jchapman63/neo-gkmn/internal/connect/gkmn/v1"
 	http "net/http"
 	strings "strings"
 )

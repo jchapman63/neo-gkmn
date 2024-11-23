@@ -17,3 +17,6 @@ with that id (okay, but useless). 404 type of response is better to use from con
 want:
 - end point that returns all active games (just id) DONE
 - ephemeral active battles (store in db until battle is over, maybe)
+
+### 11-23-24
+refactor service dir to just have handler and connect dir to have gen proto code.
