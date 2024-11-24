@@ -16,17 +16,15 @@ package pkg
 import (
 	"container/heap"
 	"fmt"
-
-	"github.com/google/uuid"
 )
 
 var speed_limit int = 999
 
 // An Item is something we manage in a priority queue.
 type Item struct {
-	monID    uuid.UUID // The value of the item; arbitrary.
-	speed    int       // used to determine priority
-	priority int       // The priority of the item in the queue.
+	monID    string // The value of the item; arbitrary.
+	speed    int    // used to determine priority
+	priority int    // The priority of the item in the queue.
 	// The index is needed by update and is maintained by the heap.Interface methods.
 	index int // The index of the item in the heap.
 }

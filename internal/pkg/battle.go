@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"container/heap"
 	"context"
 	"fmt"
 	"log/slog"
@@ -13,6 +14,7 @@ type Battle struct {
 	ID       string
 	db       database.Querier
 	Monsters map[string]*BattleMon
+	Queue    *PriorityQueue
 }
 
 type BattleMon struct {
@@ -26,7 +28,6 @@ func NewBattle(ctx context.Context, db database.Querier, monIDs []string) (*Batt
 
 	battleMonsters := map[string]*BattleMon{}
 	for _, id := range monIDs {
-
 		params := database.FetchStatParams{
 			Column1: id,
 			Column2: "speed",
@@ -66,11 +67,22 @@ func NewBattle(ctx context.Context, db database.Querier, monIDs []string) (*Batt
 		}
 		battleMonsters[id] = battleMon
 	}
+
 	return &Battle{
 		ID:       uuid.NewString(),
 		db:       db,
 		Monsters: battleMonsters,
+		Queue:    initQueue(battleMonsters),
 	}, nil
+}
+
+func initQueue(mons map[string]*BattleMon) *PriorityQueue {
+	pq := make(PriorityQueue, 0)
+	heap.Init(&pq)
+	for _, m := range mons {
+		pq.Push(m)
+	}
+	return &pq
 }
 
 func (b *Battle) Damage(victimID string, move database.Move) {
@@ -86,14 +98,11 @@ func (b *Battle) IsOver() bool {
 	return false
 }
 
-// TODO : make use of priority queue instead
-// pqueue will change the structure of Battle
-//func (b *Battle) TurnDecider() *BattleMon {
-//	maxMon := b.Monsters[0]
-//	for _, mon := range b.Monsters {
-//		if mon.Speed > maxMon.Speed {
-//			maxMon = mon
-//		}
-//	}
-//	return maxMon
-//}
+func (b *Battle) PriorityMon() string {
+	if b.Queue.Len() == 0 {
+		b.Queue = initQueue(b.Monsters)
+	}
+	item := b.Queue.Pop()
+
+	return string(item.(*Item).monID)
+}

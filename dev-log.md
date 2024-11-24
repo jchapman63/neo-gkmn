@@ -32,7 +32,8 @@ refactor service dir to just have handler and connect dir to have gen proto code
 
 ### 11-24-24
 Goal:
-- Refactor channel logic into a battle service, handler should not deal with concurrency
+~~ - Refactor channel logic into a battle service, handler should not deal with concurrency ~~
+- implement priority queue decision making when a player takes a turn
 
 change of direction.  I think I need to focus on better abstractions and data availability/locality.  For example,
 when a battle happens, I should fetch everything I need for that battle out of the database and store that in the active battle.

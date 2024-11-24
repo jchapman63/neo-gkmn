@@ -16,8 +16,8 @@ func TestMonsterPriority(t *testing.T) {
 		{
 			name: "fastest of two monsters",
 			items: []*Item{
-				{monID: uuid.New(), speed: 80, priority: 0},
-				{monID: uuid.New(), speed: 55, priority: 0},
+				{monID: uuid.New().String(), speed: 80, priority: 0},
+				{monID: uuid.New().String(), speed: 55, priority: 0},
 			},
 		},
 	}
