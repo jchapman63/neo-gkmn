@@ -7,7 +7,7 @@ import (
 	"connectrpc.com/connect"
 	"github.com/jchapman63/neo-gkmn/internal/pkg"
 
-	gkmnv1 "github.com/jchapman63/neo-gkmn/internal/service/gkmn/v1"
+	gkmnv1 "github.com/jchapman63/neo-gkmn/internal/connect/gkmn/v1"
 )
 
 // ListActiveBattles implements gkmnv1connect.GkmnServiceHandler.

@@ -7,10 +7,10 @@ import (
 	"net/http"
 
 	"connectrpc.com/connect"
+	gkmnv1 "github.com/jchapman63/neo-gkmn/internal/connect/gkmn/v1"
+	"github.com/jchapman63/neo-gkmn/internal/connect/gkmn/v1/gkmnv1connect"
 	"github.com/jchapman63/neo-gkmn/internal/database"
 	"github.com/jchapman63/neo-gkmn/internal/pkg"
-	gkmnv1 "github.com/jchapman63/neo-gkmn/internal/service/gkmn/v1"
-	"github.com/jchapman63/neo-gkmn/internal/service/gkmn/v1/gkmnv1connect"
 )
 
 var ATTACK string = "ATTACK"

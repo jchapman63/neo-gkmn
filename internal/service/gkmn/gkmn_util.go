@@ -1,6 +1,6 @@
 package gkmn
 
-import gkmnv1 "github.com/jchapman63/neo-gkmn/internal/service/gkmn/v1"
+import gkmnv1 "github.com/jchapman63/neo-gkmn/internal/connect/gkmn/v1"
 
 func (h *GameHandler) MapBattleMonsters(battleID string) []*gkmnv1.BattleMonster {
 
