@@ -2,18 +2,15 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"os"
 
 	"connectrpc.com/connect"
 	"connectrpc.com/validate"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jchapman63/neo-gkmn/internal/config"
 	"github.com/jchapman63/neo-gkmn/internal/database"
-	"github.com/jchapman63/neo-gkmn/internal/pkg"
 	"github.com/jchapman63/neo-gkmn/internal/server"
 	"github.com/jchapman63/neo-gkmn/internal/service/gkmn"
 )
@@ -52,40 +49,9 @@ func main() {
 	)
 
 	api.RegisterService(gameService)
-	go gameService.Listen(&ctx)
 
-	api.Serve()
-}
-
-// TODO - remove after I seed the database
-func testBattle() {
-	// simulate db queried bulbasaur
-	bulbasaur := database.Monster{
-		ID:     uuid.NewString(),
-		Name:   "bulbasaur",
-		Type:   "grass",
-		Basehp: 32,
+	if err := api.Serve(); err != nil {
+		slog.Error("failed to serve application", "error", err)
+		os.Exit(1)
 	}
-
-	// move from db
-	move := database.Move{
-		ID:    uuid.NewString(),
-		Name:  "tackle",
-		Power: 10,
-	}
-	// server will spawn a battle bulbasaur from db bulbasaur
-	battleBulba := pkg.BattleMon{
-		Monster: &bulbasaur,
-		LiveHp:  bulbasaur.Basehp,
-	}
-
-	battle := pkg.Battle{
-		Monsters: []*pkg.BattleMon{
-			&battleBulba,
-		},
-	}
-
-	fmt.Println("before battle bulba", battleBulba.LiveHp)
-	battle.Damage(bulbasaur.ID, move)
-	fmt.Println("after battle bulba", battleBulba.LiveHp)
 }

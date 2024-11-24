@@ -29,3 +29,7 @@ want:
 
 ### 11-19-42
 refactor service dir to just have handler and connect dir to have gen proto code.
+
+### 11-24-24
+Goal:
+- Refactor channel logic into a battle service, handler should not deal with concurrency
