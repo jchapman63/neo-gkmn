@@ -12,19 +12,19 @@ import (
 type Battle struct {
 	ID       string
 	db       database.Querier
-	Monsters []*BattleMon
+	Monsters map[string]*BattleMon
 }
 
 type BattleMon struct {
 	Monster *database.Monster
 	LiveHp  int32
 	Speed   int32
-	Moves   []*database.Move
+	Moves   map[string]*database.Move
 }
 
 func NewBattle(ctx context.Context, db database.Querier, monIDs []string) (*Battle, error) {
 
-	var BattleMonsters []*BattleMon
+	battleMonsters := map[string]*BattleMon{}
 	for _, id := range monIDs {
 
 		params := database.FetchStatParams{
@@ -50,32 +50,31 @@ func NewBattle(ctx context.Context, db database.Querier, monIDs []string) (*Batt
 			Monster: &mon,
 			LiveHp:  mon.Basehp,
 			Speed:   speed.Power,
-			Moves:   []*database.Move{},
+			Moves:   map[string]*database.Move{},
 		}
 		movemap, err := db.FetchMovesForMon(ctx, id)
+		if err != nil {
+			slog.Error("failed to fetch moves for mon", "err", err)
+			return nil, err
+		}
 		for _, mapping := range movemap {
 			move, err := db.FetchMove(ctx, mapping.Moveid)
 			if err != nil {
 				return nil, err
 			}
-			battleMon.Moves = append(battleMon.Moves, &move)
-
+			battleMon.Moves[move.ID] = &move
 		}
-		BattleMonsters = append(BattleMonsters, battleMon)
+		battleMonsters[id] = battleMon
 	}
 	return &Battle{
 		ID:       uuid.NewString(),
 		db:       db,
-		Monsters: BattleMonsters,
+		Monsters: battleMonsters,
 	}, nil
 }
 
 func (b *Battle) Damage(victimID string, move database.Move) {
-	for _, mon := range b.Monsters {
-		if mon.Monster.ID == victimID {
-			mon.LiveHp -= move.Power
-		}
-	}
+	b.Monsters[victimID].LiveHp -= move.Power
 }
 
 func (b *Battle) IsOver() bool {
@@ -89,12 +88,12 @@ func (b *Battle) IsOver() bool {
 
 // TODO : make use of priority queue instead
 // pqueue will change the structure of Battle
-func (b *Battle) TurnDecider() *BattleMon {
-	maxMon := b.Monsters[0]
-	for _, mon := range b.Monsters {
-		if mon.Speed > maxMon.Speed {
-			maxMon = mon
-		}
-	}
-	return maxMon
-}
+//func (b *Battle) TurnDecider() *BattleMon {
+//	maxMon := b.Monsters[0]
+//	for _, mon := range b.Monsters {
+//		if mon.Speed > maxMon.Speed {
+//			maxMon = mon
+//		}
+//	}
+//	return maxMon
+//}

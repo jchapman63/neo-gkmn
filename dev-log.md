@@ -33,3 +33,8 @@ refactor service dir to just have handler and connect dir to have gen proto code
 ### 11-24-24
 Goal:
 - Refactor channel logic into a battle service, handler should not deal with concurrency
+
+change of direction.  I think I need to focus on better abstractions and data availability/locality.  For example,
+when a battle happens, I should fetch everything I need for that battle out of the database and store that in the active battle.
+
+I refactored the battle struct so that it makes use of maps of all data by id of the item.  This lets me quickly access monsters, move, etc

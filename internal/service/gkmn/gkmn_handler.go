@@ -46,7 +46,6 @@ func (h *GameHandler) Name() string {
 
 // ListActiveBattles implements gkmnv1connect.GkmnServiceHandler.
 func (h *GameHandler) ListActiveBattles(context.Context, *connect.Request[gkmnv1.GkmnServiceActiveBattleListRequest]) (*connect.Response[gkmnv1.GkmnServiceActiveBattleListResponse], error) {
-
 	var battles []string
 	for _, b := range h.activeBattles {
 		battles = append(battles, b.ID)
@@ -93,12 +92,11 @@ func (h *GameHandler) ListMonsters(ctx context.Context, req *connect.Request[gkm
 func (h *GameHandler) AttackMonster(ctx context.Context, req *connect.Request[gkmnv1.GkmnServiceAttackMonsterRequest]) (*connect.Response[gkmnv1.GkmnServiceAttackMonsterResponse], error) {
 	battleID := req.Msg.GetBattleId()
 	battle := h.activeBattles[battleID]
-	move, err := h.db.FetchMove(ctx, req.Msg.GetMoveId())
-	if err != nil {
-		return nil, err
-	}
 
-	battle.Damage(req.Msg.GetVictimId(), move)
+	actor := battle.Monsters[req.Msg.GetActorId()]
+	move := actor.Moves[req.Msg.GetMoveId()]
+
+	battle.Damage(req.Msg.GetVictimId(), *move)
 
 	return connect.NewResponse(&gkmnv1.GkmnServiceAttackMonsterResponse{
 		BattleState: &gkmnv1.BattleState{
