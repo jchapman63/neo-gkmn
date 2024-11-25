@@ -93,6 +93,12 @@ func (h *GameHandler) AttackMonster(ctx context.Context, req *connect.Request[gk
 	battleID := req.Msg.GetBattleId()
 	battle := h.activeBattles[battleID]
 
+	active := battle.PriorityMon()
+	if active != req.Msg.GetActorId() {
+		slog.Info("not the mons turn")
+		// TODO, should return error saying not monsters turn
+		return nil, nil
+	}
 	actor := battle.Monsters[req.Msg.GetActorId()]
 	move := actor.Moves[req.Msg.GetMoveId()]
 

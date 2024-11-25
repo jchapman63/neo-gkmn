@@ -28,6 +28,7 @@ func NewBattle(ctx context.Context, db database.Querier, monIDs []string) (*Batt
 
 	battleMonsters := map[string]*BattleMon{}
 	for _, id := range monIDs {
+		// TODO - fix params naming
 		params := database.FetchStatParams{
 			Column1: id,
 			Column2: "speed",
