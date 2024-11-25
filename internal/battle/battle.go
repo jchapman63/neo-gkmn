@@ -1,4 +1,4 @@
-package pkg
+package battle
 
 import (
 	"container/heap"

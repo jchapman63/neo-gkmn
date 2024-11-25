@@ -1,4 +1,4 @@
-package pkg
+package battle
 
 // a priority queue
 // using a priority queue

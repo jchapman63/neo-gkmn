@@ -6,16 +6,16 @@ import (
 	"net/http"
 
 	"connectrpc.com/connect"
+	"github.com/jchapman63/neo-gkmn/internal/battle"
 	gkmnv1 "github.com/jchapman63/neo-gkmn/internal/connect/gkmn/v1"
 	"github.com/jchapman63/neo-gkmn/internal/connect/gkmn/v1/gkmnv1connect"
 	"github.com/jchapman63/neo-gkmn/internal/database"
-	"github.com/jchapman63/neo-gkmn/internal/pkg"
 )
 
 type GameHandler struct {
 	db            database.Querier
 	options       []connect.HandlerOption
-	activeBattles map[string]*pkg.Battle
+	activeBattles map[string]*battle.Battle
 }
 
 type GameServiceOption func(n *GameHandler)
@@ -27,7 +27,7 @@ func WithHandlerOptions(opts ...connect.HandlerOption) GameServiceOption {
 }
 
 func NewGameService(db database.Querier, opts ...GameServiceOption) *GameHandler {
-	h := &GameHandler{db: db, activeBattles: make(map[string]*pkg.Battle)}
+	h := &GameHandler{db: db, activeBattles: make(map[string]*battle.Battle)}
 	for _, o := range opts {
 		o(h)
 	}
@@ -57,7 +57,7 @@ func (h *GameHandler) ListActiveBattles(context.Context, *connect.Request[gkmnv1
 }
 
 // ListBattleMonsters implements gkmnv1connect.GkmnServiceHandler.
-// Grabs monsters from the active game
+// Grabs monsters from an active game
 func (h *GameHandler) ListBattleMonsters(ctx context.Context, req *connect.Request[gkmnv1.GkmnServiceListBattleMonsterRequest]) (*connect.Response[gkmnv1.GkmnServiceListBattleMonsterResponse], error) {
 	return connect.NewResponse(&gkmnv1.GkmnServiceListBattleMonsterResponse{
 		BattleMonsters: h.MapBattleMonsters(req.Msg.GetBattleId()),
@@ -117,7 +117,7 @@ func (h *GameHandler) CreateBattle(ctx context.Context, req *connect.Request[gkm
 		monIds = append(monIds, mon.Id)
 	}
 
-	battle, err := pkg.NewBattle(ctx, h.db, monIds)
+	battle, err := battle.NewBattle(ctx, h.db, monIds)
 	if err != nil {
 		slog.Error("could not create new battle", "err", err)
 		return nil, err
