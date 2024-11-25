@@ -9,6 +9,66 @@ import (
 	"context"
 )
 
+const createMonster = `-- name: CreateMonster :exec
+INSERT INTO monster (id, name, type, baseHp)
+    VALUES ($1, $2, $3, $4)
+`
+
+type CreateMonsterParams struct {
+	ID     string
+	Name   string
+	Type   string
+	Basehp int32
+}
+
+func (q *Queries) CreateMonster(ctx context.Context, arg CreateMonsterParams) error {
+	_, err := q.db.Exec(ctx, createMonster,
+		arg.ID,
+		arg.Name,
+		arg.Type,
+		arg.Basehp,
+	)
+	return err
+}
+
+const createMove = `-- name: CreateMove :exec
+INSERT INTO MOVE (id, name, power, type)
+    VALUES ($1, $2, $3, $4)
+`
+
+type CreateMoveParams struct {
+	ID    string
+	Name  string
+	Power int32
+	Type  string
+}
+
+func (q *Queries) CreateMove(ctx context.Context, arg CreateMoveParams) error {
+	_, err := q.db.Exec(ctx, createMove,
+		arg.ID,
+		arg.Name,
+		arg.Power,
+		arg.Type,
+	)
+	return err
+}
+
+const createStatForMon = `-- name: CreateStatForMon :exec
+INSERT INTO stats (monsterID, statType, power)
+    VALUES ($1, $2, $3)
+`
+
+type CreateStatForMonParams struct {
+	Monsterid string
+	Stattype  string
+	Power     int32
+}
+
+func (q *Queries) CreateStatForMon(ctx context.Context, arg CreateStatForMonParams) error {
+	_, err := q.db.Exec(ctx, createStatForMon, arg.Monsterid, arg.Stattype, arg.Power)
+	return err
+}
+
 const fetchMonster = `-- name: FetchMonster :one
 SELECT
     id, name, type, basehp
@@ -91,12 +151,12 @@ WHERE
 `
 
 type FetchStatParams struct {
-	Column1 string
-	Column2 string
+	MonsterID string
+	StatType  string
 }
 
 func (q *Queries) FetchStat(ctx context.Context, arg FetchStatParams) (Stat, error) {
-	row := q.db.QueryRow(ctx, fetchStat, arg.Column1, arg.Column2)
+	row := q.db.QueryRow(ctx, fetchStat, arg.MonsterID, arg.StatType)
 	var i Stat
 	err := row.Scan(&i.Monsterid, &i.Stattype, &i.Power)
 	return i, err
@@ -132,4 +192,19 @@ func (q *Queries) ListMonsters(ctx context.Context) ([]Monster, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const registerMoveForMon = `-- name: RegisterMoveForMon :exec
+INSERT INTO movemap (monsterID, moveID)
+    VALUES ($1, $2)
+`
+
+type RegisterMoveForMonParams struct {
+	Monsterid string
+	Moveid    string
+}
+
+func (q *Queries) RegisterMoveForMon(ctx context.Context, arg RegisterMoveForMonParams) error {
+	_, err := q.db.Exec(ctx, registerMoveForMon, arg.Monsterid, arg.Moveid)
+	return err
 }

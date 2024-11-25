@@ -33,9 +33,21 @@ refactor service dir to just have handler and connect dir to have gen proto code
 ### 11-24-24
 Goal:
 ~~ - Refactor channel logic into a battle service, handler should not deal with concurrency ~~
-- implement priority queue decision making when a player takes a turn
+- implement priority queue decision making when a player takes a turn - WIP
+- TODO: Fix pqeue typing error.  The "Item" type does not match BattleMon.
 
 change of direction.  I think I need to focus on better abstractions and data availability/locality.  For example,
 when a battle happens, I should fetch everything I need for that battle out of the database and store that in the active battle.
 
 I refactored the battle struct so that it makes use of maps of all data by id of the item.  This lets me quickly access monsters, move, etc
+
+DO NOT START ANYTHING NEW UNTIL YOU FIX PQUEUE
+
+### 11-29-24
+- Work on PQUEUE
+    - battle tests with mockery
+- Think about battle client
+
+### 12-1-24
+- Used mockery to create Querier mocks
+- TODO: Finish up stat and movemap tests and then work on PQUEUE bug

@@ -1,0 +1,12 @@
+---
+quiet: false
+disable-version-string: true
+with-expecter: true
+filename: "mock_{{.InterfaceName | lower}}.go"
+dir: "{{.InterfaceDir}}/mocks"
+mockname: "Mock{{.InterfaceName}}"
+outpkg: "mocks"
+packages:
+  github.com/jchapman63/neo-gkmn/internal/database:
+    interfaces:
+      Querier:

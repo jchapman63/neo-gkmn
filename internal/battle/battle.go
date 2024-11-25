@@ -29,13 +29,13 @@ func NewBattle(ctx context.Context, db database.Querier, monIDs []string) (*Batt
 	battleMonsters := map[string]*BattleMon{}
 	for _, id := range monIDs {
 		params := database.FetchStatParams{
-			Column1: id,
-			Column2: "speed",
+			MonsterID: id,
+			StatType:  "speed",
 		}
 
 		speed, err := db.FetchStat(ctx, params)
 		if err != nil {
-			msg := fmt.Sprintf("failed to fetch %s stats for monID: %s", params.Column2, params.Column1)
+			msg := fmt.Sprintf("failed to fetch %s stats for monID: %s", params.StatType, params.MonsterID)
 			slog.Error(msg, "err", err)
 			return nil, err
 		}

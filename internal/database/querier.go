@@ -9,11 +9,15 @@ import (
 )
 
 type Querier interface {
+	CreateMonster(ctx context.Context, arg CreateMonsterParams) error
+	CreateMove(ctx context.Context, arg CreateMoveParams) error
+	CreateStatForMon(ctx context.Context, arg CreateStatForMonParams) error
 	FetchMonster(ctx context.Context, id string) (Monster, error)
 	FetchMove(ctx context.Context, id string) (Move, error)
 	FetchMovesForMon(ctx context.Context, monsterid string) ([]Movemap, error)
 	FetchStat(ctx context.Context, arg FetchStatParams) (Stat, error)
 	ListMonsters(ctx context.Context) ([]Monster, error)
+	RegisterMoveForMon(ctx context.Context, arg RegisterMoveForMonParams) error
 }
 
 var _ Querier = (*Queries)(nil)
