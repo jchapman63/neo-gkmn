@@ -42,3 +42,8 @@ when a battle happens, I should fetch everything I need for that battle out of t
 I refactored the battle struct so that it makes use of maps of all data by id of the item.  This lets me quickly access monsters, move, etc
 
 DO NOT START ANYTHING NEW UNTIL YOU FIX PQUEUE
+
+### 11-29-24
+- Work on PQUEUE
+    - battle tests with mockery
+- Think about battle client
