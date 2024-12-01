@@ -45,3 +45,11 @@ INSERT INTO monster (id, name, type, baseHp)
 INSERT INTO MOVE (id, name, power, type)
     VALUES ($1, $2, $3, $4);
 
+-- name: CreateStatForMon :exec
+INSERT INTO stats (monsterID, statType, power)
+    VALUES ($1, $2, $3);
+
+-- name: RegisterMoveForMon :exec
+INSERT INTO movemap (monsterID, moveID)
+    VALUES ($1, $2);
+

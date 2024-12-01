@@ -47,3 +47,7 @@ DO NOT START ANYTHING NEW UNTIL YOU FIX PQUEUE
 - Work on PQUEUE
     - battle tests with mockery
 - Think about battle client
+
+### 12-1-24
+- Used mockery to create Querier mocks
+- TODO: Finish up stat and movemap tests and then work on PQUEUE bug

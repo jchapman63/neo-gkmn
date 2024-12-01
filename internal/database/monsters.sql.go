@@ -53,6 +53,22 @@ func (q *Queries) CreateMove(ctx context.Context, arg CreateMoveParams) error {
 	return err
 }
 
+const createStatForMon = `-- name: CreateStatForMon :exec
+INSERT INTO stats (monsterID, statType, power)
+    VALUES ($1, $2, $3)
+`
+
+type CreateStatForMonParams struct {
+	Monsterid string
+	Stattype  string
+	Power     int32
+}
+
+func (q *Queries) CreateStatForMon(ctx context.Context, arg CreateStatForMonParams) error {
+	_, err := q.db.Exec(ctx, createStatForMon, arg.Monsterid, arg.Stattype, arg.Power)
+	return err
+}
+
 const fetchMonster = `-- name: FetchMonster :one
 SELECT
     id, name, type, basehp
@@ -176,4 +192,19 @@ func (q *Queries) ListMonsters(ctx context.Context) ([]Monster, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const registerMoveForMon = `-- name: RegisterMoveForMon :exec
+INSERT INTO movemap (monsterID, moveID)
+    VALUES ($1, $2)
+`
+
+type RegisterMoveForMonParams struct {
+	Monsterid string
+	Moveid    string
+}
+
+func (q *Queries) RegisterMoveForMon(ctx context.Context, arg RegisterMoveForMonParams) error {
+	_, err := q.db.Exec(ctx, registerMoveForMon, arg.Monsterid, arg.Moveid)
+	return err
 }

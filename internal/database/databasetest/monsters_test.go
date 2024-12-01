@@ -6,7 +6,7 @@ import (
 	"github.com/jchapman63/neo-gkmn/internal/database"
 )
 
-// tests Querier monsters methods
+// tests Querier monsters methods with actual db queries
 
 func (s *DatabaseTestSuite) Test_ListMonsters() {
 	ctx := context.Background()
