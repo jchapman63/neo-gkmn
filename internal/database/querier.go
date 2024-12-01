@@ -9,6 +9,8 @@ import (
 )
 
 type Querier interface {
+	CreateMonster(ctx context.Context, arg CreateMonsterParams) error
+	CreateMove(ctx context.Context, arg CreateMoveParams) error
 	FetchMonster(ctx context.Context, id string) (Monster, error)
 	FetchMove(ctx context.Context, id string) (Move, error)
 	FetchMovesForMon(ctx context.Context, monsterid string) ([]Movemap, error)

@@ -37,3 +37,11 @@ FROM
 WHERE
     monsterid = $1;
 
+-- name: CreateMonster :exec
+INSERT INTO monster (id, name, type, baseHp)
+    VALUES ($1, $2, $3, $4);
+
+-- name: CreateMove :exec
+INSERT INTO MOVE (id, name, power, type)
+    VALUES ($1, $2, $3, $4);
+

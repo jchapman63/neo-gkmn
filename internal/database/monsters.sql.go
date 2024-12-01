@@ -9,6 +9,50 @@ import (
 	"context"
 )
 
+const createMonster = `-- name: CreateMonster :exec
+INSERT INTO monster (id, name, type, baseHp)
+    VALUES ($1, $2, $3, $4)
+`
+
+type CreateMonsterParams struct {
+	ID     string
+	Name   string
+	Type   string
+	Basehp int32
+}
+
+func (q *Queries) CreateMonster(ctx context.Context, arg CreateMonsterParams) error {
+	_, err := q.db.Exec(ctx, createMonster,
+		arg.ID,
+		arg.Name,
+		arg.Type,
+		arg.Basehp,
+	)
+	return err
+}
+
+const createMove = `-- name: CreateMove :exec
+INSERT INTO MOVE (id, name, power, type)
+    VALUES ($1, $2, $3, $4)
+`
+
+type CreateMoveParams struct {
+	ID    string
+	Name  string
+	Power int32
+	Type  string
+}
+
+func (q *Queries) CreateMove(ctx context.Context, arg CreateMoveParams) error {
+	_, err := q.db.Exec(ctx, createMove,
+		arg.ID,
+		arg.Name,
+		arg.Power,
+		arg.Type,
+	)
+	return err
+}
+
 const fetchMonster = `-- name: FetchMonster :one
 SELECT
     id, name, type, basehp
