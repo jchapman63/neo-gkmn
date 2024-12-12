@@ -10,8 +10,8 @@ SELECT
 FROM
     stats
 WHERE
-    monsterID = $1::uuid
-    AND statType = $2::text;
+    monsterID = @monster_id::uuid
+    AND statType = @stat_type::text;
 
 -- name: FetchMonster :one
 SELECT

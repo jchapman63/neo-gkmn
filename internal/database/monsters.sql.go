@@ -151,12 +151,12 @@ WHERE
 `
 
 type FetchStatParams struct {
-	Column1 string
-	Column2 string
+	MonsterID string
+	StatType  string
 }
 
 func (q *Queries) FetchStat(ctx context.Context, arg FetchStatParams) (Stat, error) {
-	row := q.db.QueryRow(ctx, fetchStat, arg.Column1, arg.Column2)
+	row := q.db.QueryRow(ctx, fetchStat, arg.MonsterID, arg.StatType)
 	var i Stat
 	err := row.Scan(&i.Monsterid, &i.Stattype, &i.Power)
 	return i, err
