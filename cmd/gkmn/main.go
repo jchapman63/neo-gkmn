@@ -15,6 +15,9 @@ import (
 	"github.com/jchapman63/neo-gkmn/internal/service/gkmn"
 )
 
+const ClientCMD = "client"
+const MigrationCMD = "migrate"
+
 func main() {
 	ctx := context.Background()
 
@@ -39,6 +42,13 @@ func main() {
 	if err != nil {
 		slog.Error("failure to create interceptor", "err", err)
 		os.Exit(1)
+	}
+
+	if len(os.Args) > 1 {
+		switch os.Args[0] {
+		case ClientCMD:
+		case MigrationCMD:
+		}
 	}
 
 	gameService := gkmn.NewGameService(
