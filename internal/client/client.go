@@ -10,41 +10,43 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
-//go:embed sprites/*.png
-var sprites embed.FS
+//go:embed sprites/gui/*.png
+var gui embed.FS
+
+////go:embed sprites/monsters/*.png
+//var mons embed.FS
 
 type Game struct {
-	imgs []*ebiten.Image
+	guiSprites map[string]*ebiten.Image
+	//monSprites map[string]*ebiten.Image
 }
 
 func NewGame() (*Game, error) {
-	imgs, err := fetchSprites()
-	if err != nil {
+	game := &Game{}
+
+	if err := game.fetchSprites(); err != nil {
 		return nil, err
 	}
 
-	return &Game{
-		imgs: imgs,
-	}, nil
+	return game, nil
 }
 
-func fetchSprites() ([]*ebiten.Image, error) {
-	sprites, err := sprites.ReadDir("sprites")
+func (g *Game) fetchSprites() error {
+	gSprit, err := gui.ReadDir("sprites/gui")
 	if err != nil {
-		return nil, err
+		return err
 	}
-	fmt.Println(sprites)
-	var imgs []*ebiten.Image
-	for _, sprite := range sprites {
-		filePath := "sprites/" + sprite.Name()
-		img, _, err := ebitenutil.NewImageFromFile(filePath)
+	for _, sprite := range gSprit {
+		filePath := "sprites/gui" + sprite.Name()
+		fmt.Println(sprite.Name())
+		img, _, err := ebitenutil.NewImageFromFileSystem(gui, filePath)
 		if err != nil {
-			return nil, err
+			return nil
 		}
-		imgs = append(imgs, img)
+		g.guiSprites[sprite.Name()] = img
+		fmt.Println("gui sprites", g.guiSprites[sprite.Name()])
 	}
-
-	return imgs, nil
+	return nil
 }
 
 func (g *Game) Update() error {
@@ -54,7 +56,7 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	ebitenutil.DebugPrint(screen, "Hello, World!")
 	// TODO - abstraction, only expecting one image for now
-	screen.DrawImage(g.imgs[0], nil)
+	screen.DrawImage(g.guiSprites["emptybox.png"], nil)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -63,7 +65,6 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 
 func Run(game *Game) error {
 	ebiten.SetWindowSize(640, 480)
-	ebiten.SetWindowTitle("Hello, World!")
 	if err := ebiten.RunGame(game); err != nil {
 		return err
 	}
