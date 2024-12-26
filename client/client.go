@@ -3,11 +3,12 @@ package client
 // a client implements the game logic for an end user
 import (
 	"embed"
-	"fmt"
 	_ "image/png"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/jchapman63/neo-gkmn/client/config"
+	"github.com/jchapman63/neo-gkmn/client/scenes"
 )
 
 //go:embed sprites/gui/*.png
@@ -17,13 +18,17 @@ var gui embed.FS
 //var mons embed.FS
 
 type Game struct {
-	guiSprites map[string]*ebiten.Image
-	//monSprites map[string]*ebiten.Image
+	Window *config.Window
+	GUI    *config.GUI
+	// Mons config.Monsters
 }
 
 func NewGame() (*Game, error) {
-	game := &Game{guiSprites: map[string]*ebiten.Image{}}
-
+	w := &config.Window{
+		Length: 640,
+		Width:  480,
+	}
+	game := &Game{Window: w, GUI: &config.GUI{Sprites: map[string]*ebiten.Image{}}}
 	if err := game.fetchSprites(); err != nil {
 		return nil, err
 	}
@@ -36,14 +41,13 @@ func (g *Game) fetchSprites() error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("gSprit", gSprit)
 	for _, sprite := range gSprit {
 		filePath := "sprites/gui/" + sprite.Name()
 		img, _, err := ebitenutil.NewImageFromFileSystem(gui, filePath)
 		if err != nil {
 			return err
 		}
-		g.guiSprites[sprite.Name()] = img
+		g.GUI.Sprites[sprite.Name()] = img
 	}
 	return nil
 }
@@ -53,15 +57,11 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	// TODO - abstraction, only expecting one image for now
-
-	// TODO - abstract into battle gui function
-	// Battle Interface GUI
-	screen.DrawImage(g.guiSprites["emptybox.png"], nil)
+	scenes.BattleGUI(screen, g.Window, g.GUI)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return 320, 240
+	return g.Window.Length, g.Window.Width
 }
 
 func Run(game *Game) error {
