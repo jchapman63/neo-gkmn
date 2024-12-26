@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/jchapman63/neo-gkmn/internal/client"
+	"github.com/jchapman63/neo-gkmn/client"
 )
 
 func main() {
