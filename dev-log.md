@@ -79,3 +79,6 @@ I did a quick search and found Ebitengine on reddit.  Here are their docs: https
 Today, I am going to copy over their hello world program and play around with the code in neo-gkmn to see what happens.  I think
 I will be able to implement something similar to what I described on 12-11-24 and have a client host the Ebitengine logic.
 
+#### 12-21-24
+I need to design the GUI for battles.  I am going to try and get a lofi design going with blank rectangles and see if I can get a basic
+structure for a battle scene.

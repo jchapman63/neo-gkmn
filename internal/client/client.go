@@ -22,7 +22,7 @@ type Game struct {
 }
 
 func NewGame() (*Game, error) {
-	game := &Game{}
+	game := &Game{guiSprites: map[string]*ebiten.Image{}}
 
 	if err := game.fetchSprites(); err != nil {
 		return nil, err
@@ -36,15 +36,14 @@ func (g *Game) fetchSprites() error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("gSprit", gSprit)
 	for _, sprite := range gSprit {
-		filePath := "sprites/gui" + sprite.Name()
-		fmt.Println(sprite.Name())
+		filePath := "sprites/gui/" + sprite.Name()
 		img, _, err := ebitenutil.NewImageFromFileSystem(gui, filePath)
 		if err != nil {
-			return nil
+			return err
 		}
 		g.guiSprites[sprite.Name()] = img
-		fmt.Println("gui sprites", g.guiSprites[sprite.Name()])
 	}
 	return nil
 }
@@ -54,8 +53,10 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	ebitenutil.DebugPrint(screen, "Hello, World!")
 	// TODO - abstraction, only expecting one image for now
+
+	// TODO - abstract into battle gui function
+	// Battle Interface GUI
 	screen.DrawImage(g.guiSprites["emptybox.png"], nil)
 }
 
