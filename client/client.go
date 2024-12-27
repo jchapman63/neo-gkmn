@@ -25,8 +25,8 @@ type Game struct {
 
 func NewGame() (*Game, error) {
 	w := &config.Window{
-		Length: 640,
-		Width:  480,
+		Width:  640,
+		Height: 480,
 	}
 	game := &Game{Window: w, GUI: &config.GUI{Sprites: map[string]*ebiten.Image{}}}
 	if err := game.fetchSprites(); err != nil {
@@ -61,7 +61,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return g.Window.Length, g.Window.Width
+	return g.Window.Width, g.Window.Height
 }
 
 func Run(game *Game) error {

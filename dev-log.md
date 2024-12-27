@@ -82,3 +82,9 @@ I will be able to implement something similar to what I described on 12-11-24 an
 #### 12-21-24
 I need to design the GUI for battles.  I am going to try and get a lofi design going with blank rectangles and see if I can get a basic
 structure for a battle scene.
+
+#### 12-27-24
+This morning I have implemented a lofi design of the battle gui using blank rectangles.  The most hi fidelity thing about this so far is the background I used gemini to generate. I made use
+of the examples in ebitengine's repo for how to implement the background and it worked well.  I have a canvas to work with.  I think the graphics logic could use some refactoring for consitency.
+I will have to put though into things like where/how I get values, padding and placement. Following this I will need an overlay for menu options in a battle.  Following that I will need button functionality.
+Following that I will need to wire it up to the API.

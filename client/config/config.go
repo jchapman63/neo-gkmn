@@ -3,8 +3,8 @@ package config
 import "github.com/hajimehoshi/ebiten/v2"
 
 type Window struct {
-	Length int
 	Width  int
+	Height int
 }
 type GUI struct {
 	Sprites map[string]*ebiten.Image
