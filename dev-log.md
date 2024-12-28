@@ -88,3 +88,9 @@ This morning I have implemented a lofi design of the battle gui using blank rect
 of the examples in ebitengine's repo for how to implement the background and it worked well.  I have a canvas to work with.  I think the graphics logic could use some refactoring for consitency.
 I will have to put though into things like where/how I get values, padding and placement. Following this I will need an overlay for menu options in a battle.  Following that I will need button functionality.
 Following that I will need to wire it up to the API.
+
+#### 12-28-24
+Began refactoring battle gui.  Need to have good abstractions that make sprite placement predictable and easy to replicate
+
+#### 12-29-24
+Did more refactoring in battle gui working towards better math for placing gui elements

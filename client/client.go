@@ -57,7 +57,8 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	scenes.BattleGUI(screen, g.Window, g.GUI)
+	bGUI := scenes.NewBattleGUI(screen, g.GUI)
+	bGUI.DrawBattleGUI()
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {

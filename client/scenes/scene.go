@@ -2,65 +2,104 @@ package scenes
 
 import (
 	"image/color"
+	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/jchapman63/neo-gkmn/client/config"
 )
 
-func BattleGUI(screen *ebiten.Image, window *config.Window, GUI *config.GUI) {
-	drawBackground(screen, window, GUI.Sprites["temp-bkg.png"])
+const padding float64 = 0.05
+
+type BattleGUI struct {
+	screen *ebiten.Image
+	gConf  *config.GUI
+}
+
+func NewBattleGUI(screen *ebiten.Image, conf *config.GUI) *BattleGUI {
+	return &BattleGUI{
+		screen: screen,
+		gConf:  conf,
+	}
+}
+
+func (b *BattleGUI) DrawBattleGUI() {
+	bkg, ok := b.gConf.Sprites["temp-bkg.png"]
+	if !ok {
+		log.Fatal("could not find background image")
+	}
+
+	battleBox, ok := b.gConf.Sprites["emptybox.png"]
+	if !ok {
+		log.Fatal("could not find background image")
+	}
+	b.drawBackground(bkg)
+	b.drawBattleBox(battleBox)
+
+	width := float64(b.screen.Bounds().Dx())
+	height := float64(b.screen.Bounds().Dy())
+	horizontalPadding := width * padding
+	verticalPadding := height * padding
+
+	// opp mon coordinates
+	oppMonX := horizontalPadding + width*float64(0.7)
+	oppMonY := verticalPadding + height*float64(0.0)
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(3, 3)
+	op.GeoM.Translate(oppMonX, oppMonY)
+	b.screen.DrawImage(battleBox, op)
+
+	// player mon coordinates
+	pMonX := horizontalPadding + width*float64(0.0)
+	pMonY := verticalPadding + height*float64(0.7)
+	op = &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(3, 3)
+	op.GeoM.Translate(pMonX, pMonY)
+	b.screen.DrawImage(battleBox, op)
+}
+
+func (b *BattleGUI) drawBattleBox(battleBox *ebiten.Image) {
+	sw := float64(b.screen.Bounds().Dx())
+	sh := float64(b.screen.Bounds().Dy())
+	horizontalPadding := sw * padding
+	verticalPadding := sh * padding
+
+	boxWidth := float64(battleBox.Bounds().Dx())
 
 	// opp box coordinates
-	oppX := float64(window.Width) * float64(0.0)
-	oppY := float64(window.Height) * float64(0.0)
+	oppX := horizontalPadding
+	oppY := verticalPadding
 	// opp box drawing
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(6, 5)
 	op.GeoM.Translate(oppX, oppY)
-	screen.DrawImage(GUI.Sprites["emptybox.png"], op)
-
-	// player mon coordinates
-	oppMonX := float64(window.Width) * float64(0.7)
-	oppMonY := float64(window.Height) * float64(0.0)
-	op = &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(3, 3)
-	op.GeoM.Translate(oppMonX, oppMonY)
-	screen.DrawImage(GUI.Sprites["emptybox.png"], op)
+	b.screen.DrawImage(battleBox, op)
 
 	// player box coordinates
-	playerX := float64(window.Width) * float64(0.7)
-	playerY := float64(window.Height) * float64(0.7)
+	playerX := sw - boxWidth - horizontalPadding
+	playerY := verticalPadding + sh*float64(0.6)
 	// player box drawing
 	op = &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(6, 5)
 	op.GeoM.Translate(playerX, playerY)
-	screen.DrawImage(GUI.Sprites["emptybox.png"], op)
-
-	// player mon coordinates
-	pMonX := float64(window.Width) * float64(0.0)
-	pMonY := float64(window.Height) * float64(0.7)
-	op = &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(3, 3)
-	op.GeoM.Translate(pMonX, pMonY)
-	screen.DrawImage(GUI.Sprites["emptybox.png"], op)
-
+	b.screen.DrawImage(battleBox, op)
 }
 
-func drawBackground(screen *ebiten.Image, window *config.Window, bgImage *ebiten.Image) {
-	screen.Fill(color.White)
+func (b *BattleGUI) drawBackground(bgImage *ebiten.Image) {
+	b.screen.Fill(color.White)
+	width, height := b.screen.Bounds().Dx(), b.screen.Bounds().Dy()
 
-	w, h := bgImage.Bounds().Dx(), bgImage.Bounds().Dy()
-	scaleW := float64(window.Width) / float64(w)
-	scaleH := float64(window.Height) / float64(h)
+	bw, bh := bgImage.Bounds().Dx(), bgImage.Bounds().Dy()
+	scaleW := float64(width) / float64(bw)
+	scaleH := float64(height) / float64(bh)
 	scale := scaleW
 	if scale < scaleH {
 		scale = scaleH
 	}
 
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(-float64(w)/2, -float64(h)/2)
+	op.GeoM.Translate(-float64(bw)/2, -float64(bh)/2)
 	op.GeoM.Scale(scale, scale)
-	op.GeoM.Translate(float64(window.Width)/2, float64(window.Height)/2)
+	op.GeoM.Translate(float64(width)/2, float64(height)/2)
 	op.Filter = ebiten.FilterLinear
-	screen.DrawImage(bgImage, op)
+	b.screen.DrawImage(bgImage, op)
 }
