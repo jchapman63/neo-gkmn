@@ -11,6 +11,7 @@ require (
 	connectrpc.com/grpcreflect v1.2.0
 	github.com/amacneil/dbmate/v2 v2.23.0
 	github.com/google/uuid v1.6.0
+	github.com/hajimehoshi/bitmapfont/v3 v3.2.0
 	github.com/hajimehoshi/ebiten/v2 v2.8.5
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/stretchr/testify v1.9.0
@@ -41,6 +42,7 @@ require (
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
+	github.com/go-text/typesetting v0.2.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/cel-go v0.17.4 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
@@ -59,6 +61,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
+	github.com/pierrec/lz4/v4 v4.1.21 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/shirou/gopsutil/v3 v3.23.12 // indirect
@@ -74,6 +77,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.32.0 // indirect
 	go.opentelemetry.io/otel/trace v1.32.0 // indirect
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f // indirect
+	golang.org/x/image v0.20.0 // indirect
 	golang.org/x/sync v0.9.0 // indirect
 	golang.org/x/sys v0.27.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20241104194629-dd2ea8efbc28 // indirect

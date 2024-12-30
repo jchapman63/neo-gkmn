@@ -94,3 +94,14 @@ Began refactoring battle gui.  Need to have good abstractions that make sprite p
 
 #### 12-29-24
 Did more refactoring in battle gui working towards better math for placing gui elements
+
+#### 12-30-24
+I am dense in the head, the issues I was having with rectangle placement was because I neglected to consider the effects of scaling
+on rectangle size when calculating screenWidth-rectangleWidth.
+**TODO**
+- monsters placement in battle scene
+- option menu for battle actions
+- wire up to backend for real data (gen connect client?)
+
+#### 1-2-25
+I made a simple design for the full battle box including name, health numbers, and health status bar.  The above todo still applies.

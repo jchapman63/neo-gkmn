@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/jchapman63/neo-gkmn/client/config"
 )
 
@@ -13,12 +14,14 @@ const padding float64 = 0.05
 type BattleGUI struct {
 	screen *ebiten.Image
 	gConf  *config.GUI
+	face   *text.GoTextFaceSource
 }
 
-func NewBattleGUI(screen *ebiten.Image, conf *config.GUI) *BattleGUI {
+func NewBattleGUI(screen *ebiten.Image, conf *config.GUI, face *text.GoTextFaceSource) *BattleGUI {
 	return &BattleGUI{
 		screen: screen,
 		gConf:  conf,
+		face:   face,
 	}
 }
 
@@ -27,61 +30,61 @@ func (b *BattleGUI) DrawBattleGUI() {
 	if !ok {
 		log.Fatal("could not find background image")
 	}
-
-	battleBox, ok := b.gConf.Sprites["emptybox.png"]
-	if !ok {
-		log.Fatal("could not find background image")
-	}
 	b.drawBackground(bkg)
-	b.drawBattleBox(battleBox)
-
-	width := float64(b.screen.Bounds().Dx())
-	height := float64(b.screen.Bounds().Dy())
-	horizontalPadding := width * padding
-	verticalPadding := height * padding
-
-	// opp mon coordinates
-	oppMonX := horizontalPadding + width*float64(0.7)
-	oppMonY := verticalPadding + height*float64(0.0)
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(3, 3)
-	op.GeoM.Translate(oppMonX, oppMonY)
-	b.screen.DrawImage(battleBox, op)
-
-	// player mon coordinates
-	pMonX := horizontalPadding + width*float64(0.0)
-	pMonY := verticalPadding + height*float64(0.7)
-	op = &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(3, 3)
-	op.GeoM.Translate(pMonX, pMonY)
-	b.screen.DrawImage(battleBox, op)
+	b.drawBattleBoxes()
 }
 
-func (b *BattleGUI) drawBattleBox(battleBox *ebiten.Image) {
-	sw := float64(b.screen.Bounds().Dx())
-	sh := float64(b.screen.Bounds().Dy())
+func (b *BattleGUI) drawBox(name string, width int, height int, opts *ebiten.DrawImageOptions) {
+	bBox := ebiten.NewImage(width, height)
+	bBox.Fill(color.White)
+
+	// draw text in box
+	tOps := &text.DrawOptions{}
+	tOps.ColorScale.Scale(0, 0, 0, 1)
+	tOps.GeoM.Translate(float64(width)*padding, float64(height)*padding)
+	text.Draw(bBox, name, &text.GoTextFace{Source: b.face, Size: 10}, tOps)
+
+	// draw healthBar
+	barW, barH := float64(width)*0.70, float64(height)*0.10
+	healthBar := ebiten.NewImage(int(barW), int(barH))
+	healthBar.Fill(color.RGBA{0x00, 0xff, 0x00, 0xff})
+	hOps := &ebiten.DrawImageOptions{}
+	barY := float64(height) - barH - float64(height)*padding
+	hOps.GeoM.Translate(float64(width)*padding, barY)
+	bBox.DrawImage(healthBar, hOps)
+
+	// draw health numbers
+	tOps = &text.DrawOptions{}
+	tOps.GeoM.Translate(float64(width)*padding, barY-barH-10)
+	tOps.ColorScale.Scale(0, 0, 0, 1)
+	text.Draw(bBox, "25/25", &text.GoTextFace{Source: b.face, Size: 10}, tOps)
+
+	// draw box
+	b.screen.DrawImage(bBox, opts)
+}
+
+func (b *BattleGUI) drawBattleBoxes() {
+	sw, sh := float64(b.screen.Bounds().Dx()), float64(b.screen.Bounds().Dy())
 	horizontalPadding := sw * padding
 	verticalPadding := sh * padding
+	bw, bh := int(sw*0.30), int(sh*0.15)
 
-	boxWidth := float64(battleBox.Bounds().Dx())
-
-	// opp box coordinates
-	oppX := horizontalPadding
-	oppY := verticalPadding
 	// opp box drawing
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(6, 5)
-	op.GeoM.Translate(oppX, oppY)
-	b.screen.DrawImage(battleBox, op)
+	op.GeoM.Translate(horizontalPadding, verticalPadding)
+	b.drawBox("bulbasaur", bw, bh, op)
 
-	// player box coordinates
-	playerX := sw - boxWidth - horizontalPadding
-	playerY := verticalPadding + sh*float64(0.6)
 	// player box drawing
+	playerX := sw - float64(bw) - horizontalPadding
+	playerY := sh - float64(bh) - verticalPadding
 	op = &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(6, 5)
 	op.GeoM.Translate(playerX, playerY)
-	b.screen.DrawImage(battleBox, op)
+	b.drawBox("pikachu", bw, bh, op)
+
+	// draw pokemon name in box
+	tOps := &text.DrawOptions{}
+	tOps.GeoM.Translate(float64(bw)*padding, float64(bh)*padding)
+	tOps.ColorScale.Scale(0, 0, 0, 1)
 }
 
 func (b *BattleGUI) drawBackground(bgImage *ebiten.Image) {
