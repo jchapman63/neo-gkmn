@@ -9,100 +9,114 @@ import (
 	"github.com/jchapman63/neo-gkmn/client/config"
 )
 
-const padding float64 = 0.05
+const padding = 0.05
 
+// BattleGUI handles drawing the background and status boxes
+// for a Pokémon battle scene.
 type BattleGUI struct {
-	screen *ebiten.Image
-	gConf  *config.GUI
-	face   *text.GoTextFaceSource
+	screen  *ebiten.Image
+	guiConf *config.GUI
+	textSrc *text.GoTextFaceSource
 }
 
-func NewBattleGUI(screen *ebiten.Image, conf *config.GUI, face *text.GoTextFaceSource) *BattleGUI {
+// NewBattleGUI initializes a new BattleGUI instance.
+func NewBattleGUI(screen *ebiten.Image, conf *config.GUI, textSrc *text.GoTextFaceSource) *BattleGUI {
 	return &BattleGUI{
-		screen: screen,
-		gConf:  conf,
-		face:   face,
+		screen:  screen,
+		guiConf: conf,
+		textSrc: textSrc,
 	}
 }
 
+// DrawBattleGUI is the primary entry point to draw
+// the background and all UI boxes for the battle scene.
 func (b *BattleGUI) DrawBattleGUI() {
-	bkg, ok := b.gConf.Sprites["temp-bkg.png"]
+	bgImage, ok := b.guiConf.Sprites["temp-bkg.png"]
 	if !ok {
 		log.Fatal("could not find background image")
 	}
-	b.drawBackground(bkg)
+
+	b.drawBackground(bgImage)
 	b.drawBattleBoxes()
 }
 
-func (b *BattleGUI) drawBox(name string, width int, height int, opts *ebiten.DrawImageOptions) {
-	bBox := ebiten.NewImage(width, height)
-	bBox.Fill(color.White)
-
-	// draw text in box
-	tOps := &text.DrawOptions{}
-	tOps.ColorScale.Scale(0, 0, 0, 1)
-	tOps.GeoM.Translate(float64(width)*padding, float64(height)*padding)
-	text.Draw(bBox, name, &text.GoTextFace{Source: b.face, Size: 10}, tOps)
-
-	// draw healthBar
-	barW, barH := float64(width)*0.70, float64(height)*0.10
-	healthBar := ebiten.NewImage(int(barW), int(barH))
-	healthBar.Fill(color.RGBA{0x00, 0xff, 0x00, 0xff})
-	hOps := &ebiten.DrawImageOptions{}
-	barY := float64(height) - barH - float64(height)*padding
-	hOps.GeoM.Translate(float64(width)*padding, barY)
-	bBox.DrawImage(healthBar, hOps)
-
-	// draw health numbers
-	tOps = &text.DrawOptions{}
-	tOps.GeoM.Translate(float64(width)*padding, barY-barH-10)
-	tOps.ColorScale.Scale(0, 0, 0, 1)
-	text.Draw(bBox, "25/25", &text.GoTextFace{Source: b.face, Size: 10}, tOps)
-
-	// draw box
-	b.screen.DrawImage(bBox, opts)
-}
-
+// drawBattleBoxes draws the boxes for the opponent’s Pokémon and the player’s Pokémon.
 func (b *BattleGUI) drawBattleBoxes() {
-	sw, sh := float64(b.screen.Bounds().Dx()), float64(b.screen.Bounds().Dy())
-	horizontalPadding := sw * padding
-	verticalPadding := sh * padding
-	bw, bh := int(sw*0.30), int(sh*0.15)
+	screenW, screenH := float64(b.screen.Bounds().Dx()), float64(b.screen.Bounds().Dy())
+	hPad := screenW * padding
+	vPad := screenH * padding
+	boxW := int(screenW * 0.30)
+	boxH := int(screenH * 0.15)
 
-	// opp box drawing
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(horizontalPadding, verticalPadding)
-	b.drawBox("bulbasaur", bw, bh, op)
+	// Opponent box
+	oppOpts := &ebiten.DrawImageOptions{}
+	oppOpts.GeoM.Translate(hPad, vPad)
+	b.drawBox("bulbasaur", boxW, boxH, oppOpts)
 
-	// player box drawing
-	playerX := sw - float64(bw) - horizontalPadding
-	playerY := sh - float64(bh) - verticalPadding
-	op = &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(playerX, playerY)
-	b.drawBox("pikachu", bw, bh, op)
-
-	// draw pokemon name in box
-	tOps := &text.DrawOptions{}
-	tOps.GeoM.Translate(float64(bw)*padding, float64(bh)*padding)
-	tOps.ColorScale.Scale(0, 0, 0, 1)
+	// Player box
+	playerX := screenW - float64(boxW) - hPad
+	playerY := screenH - float64(boxH) - vPad
+	playerOpts := &ebiten.DrawImageOptions{}
+	playerOpts.GeoM.Translate(playerX, playerY)
+	b.drawBox("pikachu", boxW, boxH, playerOpts)
 }
 
+// drawBox creates and draws a single box containing a Pokémon’s name,
+// health bar, and HP numbers.
+func (b *BattleGUI) drawBox(name string, width, height int, opts *ebiten.DrawImageOptions) {
+	boxImg := ebiten.NewImage(width, height)
+	boxImg.Fill(color.White)
+
+	// Draw Pokémon name
+	nameOpts := &text.DrawOptions{}
+	nameOpts.ColorScale.Scale(0, 0, 0, 1)
+	nameOpts.GeoM.Translate(float64(width)*padding, float64(height)*padding)
+	text.Draw(boxImg, name, &text.GoTextFace{Source: b.textSrc, Size: 10}, nameOpts)
+
+	// Draw health bar
+	barW := float64(width) * 0.70
+	barH := float64(height) * 0.10
+	healthBar := ebiten.NewImage(int(barW), int(barH))
+	healthBar.Fill(color.RGBA{0x00, 0xff, 0x00, 0xff}) // Green
+
+	healthOpts := &ebiten.DrawImageOptions{}
+	barY := float64(height) - barH - float64(height)*padding
+	healthOpts.GeoM.Translate(float64(width)*padding, barY)
+	boxImg.DrawImage(healthBar, healthOpts)
+
+	// Draw HP text
+	hpOpts := &text.DrawOptions{}
+	hpOpts.ColorScale.Scale(0, 0, 0, 1)
+	hpOpts.GeoM.Translate(float64(width)*padding, barY-barH-10)
+	text.Draw(boxImg, "25/25", &text.GoTextFace{Source: b.textSrc, Size: 10}, hpOpts)
+
+	// Finally draw the box onto the screen
+	b.screen.DrawImage(boxImg, opts)
+}
+
+// drawBackground fills the entire screen with white and then draws the
+// background image scaled to fill the screen area.
 func (b *BattleGUI) drawBackground(bgImage *ebiten.Image) {
 	b.screen.Fill(color.White)
-	width, height := b.screen.Bounds().Dx(), b.screen.Bounds().Dy()
 
-	bw, bh := bgImage.Bounds().Dx(), bgImage.Bounds().Dy()
-	scaleW := float64(width) / float64(bw)
-	scaleH := float64(height) / float64(bh)
+	screenW, screenH := float64(b.screen.Bounds().Dx()), float64(b.screen.Bounds().Dy())
+	bgW, bgH := float64(bgImage.Bounds().Dx()), float64(bgImage.Bounds().Dy())
+
+	scaleW := screenW / bgW
+	scaleH := screenH / bgH
+
+	// Choose the larger scale to fill the screen.
 	scale := scaleW
 	if scale < scaleH {
 		scale = scaleH
 	}
 
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(-float64(bw)/2, -float64(bh)/2)
-	op.GeoM.Scale(scale, scale)
-	op.GeoM.Translate(float64(width)/2, float64(height)/2)
-	op.Filter = ebiten.FilterLinear
-	b.screen.DrawImage(bgImage, op)
+	opts := &ebiten.DrawImageOptions{}
+	// Start from image center
+	opts.GeoM.Translate(-bgW/2, -bgH/2)
+	opts.GeoM.Scale(scale, scale)
+	opts.GeoM.Translate(screenW/2, screenH/2)
+	opts.Filter = ebiten.FilterLinear
+
+	b.screen.DrawImage(bgImage, opts)
 }
