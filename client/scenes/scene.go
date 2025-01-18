@@ -15,15 +15,15 @@ const padding = 0.05
 // for a Pokémon battle scene.
 type BattleGUI struct {
 	screen  *ebiten.Image
-	guiConf *config.GUI
+	config  *config.Game
 	textSrc *text.GoTextFaceSource
 }
 
 // NewBattleGUI initializes a new BattleGUI instance.
-func NewBattleGUI(screen *ebiten.Image, conf *config.GUI, textSrc *text.GoTextFaceSource) *BattleGUI {
+func NewBattleGUI(screen *ebiten.Image, conf *config.Game, textSrc *text.GoTextFaceSource) *BattleGUI {
 	return &BattleGUI{
 		screen:  screen,
-		guiConf: conf,
+		config:  conf,
 		textSrc: textSrc,
 	}
 }
@@ -31,13 +31,37 @@ func NewBattleGUI(screen *ebiten.Image, conf *config.GUI, textSrc *text.GoTextFa
 // DrawBattleGUI is the primary entry point to draw
 // the background and all UI boxes for the battle scene.
 func (b *BattleGUI) DrawBattleGUI() {
-	bgImage, ok := b.guiConf.Sprites["temp-bkg.png"]
+	bgImage, ok := b.config.GUI.Sprites["temp-bkg.png"]
 	if !ok {
 		log.Fatal("could not find background image")
 	}
-
+	// TODO - turn into iterable object of current monsters in battle
+	mons, ok := b.config.Monsters.Sprites["bulbasaur.png"]
+	if !ok {
+		log.Fatal("cound not find monster image")
+	}
 	b.drawBackground(bgImage)
 	b.drawBattleBoxes()
+	b.drawMonsters(mons)
+}
+
+// drawMonsters draws pokemon adjacent to the respective entity's battle box
+func (b *BattleGUI) drawMonsters(mons *ebiten.Image) {
+	// TODO - abstract these calculations
+	screenW, screenH := float64(b.screen.Bounds().Dx()), float64(b.screen.Bounds().Dy())
+	hPad := screenW * padding
+	vPad := screenH * padding
+
+	// pMon
+	monH := mons.Bounds().Dy()
+	pOpts := &ebiten.DrawImageOptions{}
+	pOpts.GeoM.Scale(-1, 1)
+	// TODO - what the fuck?????
+	pOpts.GeoM.Translate(hPad+50, screenH-float64(monH)-vPad)
+	b.screen.DrawImage(mons, pOpts)
+
+	// oMon
+	// TODO - inverse calculations
 }
 
 // drawBattleBoxes draws the boxes for the opponent’s Pokémon and the player’s Pokémon.
@@ -58,7 +82,7 @@ func (b *BattleGUI) drawBattleBoxes() {
 	playerY := screenH - float64(boxH) - vPad
 	playerOpts := &ebiten.DrawImageOptions{}
 	playerOpts.GeoM.Translate(playerX, playerY)
-	b.drawBox("pikachu", boxW, boxH, playerOpts)
+	b.drawBox("bulbasaur", boxW, boxH, playerOpts)
 }
 
 // drawBox creates and draws a single box containing a Pokémon’s name,

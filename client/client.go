@@ -18,11 +18,12 @@ import (
 //go:embed sprites/gui/*.png
 var gui embed.FS
 
-////go:embed sprites/monsters/*.png
-//var mons embed.FS
+//go:embed sprites/monsters/*.png
+var mons embed.FS
 
 type Game struct {
 	Window *config.Window
+	Config *config.Game
 	GUI    *config.GUI
 	Face   *text.GoTextFaceSource
 	// Mons config.Monsters
@@ -39,8 +40,13 @@ func NewGame() (*Game, error) {
 	}
 	game := &Game{
 		Window: w,
-		GUI: &config.GUI{
-			Sprites: map[string]*ebiten.Image{},
+		Config: &config.Game{
+			GUI: &config.GUI{
+				Sprites: map[string]*ebiten.Image{},
+			},
+			Monsters: &config.Monsters{
+				Sprites: map[string]*ebiten.Image{},
+			},
 		},
 		Face: s,
 	}
@@ -51,7 +57,9 @@ func NewGame() (*Game, error) {
 	return game, nil
 }
 
+// fetches sprites from local dir to build battle scene
 func (g *Game) fetchSprites() error {
+	// gui sprites
 	gSprit, err := gui.ReadDir("sprites/gui")
 	if err != nil {
 		return err
@@ -62,7 +70,21 @@ func (g *Game) fetchSprites() error {
 		if err != nil {
 			return err
 		}
-		g.GUI.Sprites[sprite.Name()] = img
+		g.Config.GUI.Sprites[sprite.Name()] = img
+	}
+
+	// monster sprites
+	mSprites, err := mons.ReadDir("sprites/monsters")
+	if err != nil {
+		return err
+	}
+	for _, sprite := range mSprites {
+		filePath := "sprites/monsters/" + sprite.Name()
+		img, _, err := ebitenutil.NewImageFromFileSystem(mons, filePath)
+		if err != nil {
+			return err
+		}
+		g.Config.Monsters.Sprites[sprite.Name()] = img
 	}
 	return nil
 }
@@ -72,13 +94,8 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	bGUI := scenes.NewBattleGUI(screen, g.GUI, g.Face)
+	bGUI := scenes.NewBattleGUI(screen, g.Config, g.Face)
 	bGUI.DrawBattleGUI()
-	//tOps := &text.DrawOptions{}
-	//tOps.ColorScale.Scale(1, 1, 1, 1)
-	//tOps.GeoM.Translate(float64(screen.Bounds().Dx()/2), float64(screen.Bounds().Dy()/2))
-	//pokemon := "bulbasaur"
-	//text.Draw(screen, pokemon, &text.GoTextFace{Source: g.Face, Size: 10}, tOps)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
