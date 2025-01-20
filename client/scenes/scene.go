@@ -15,6 +15,7 @@ const padding = 0.05
 // for a Pokémon battle scene.
 type BattleGUI struct {
 	canvas  *Canvas
+	menu    *Menu
 	screen  *ebiten.Image
 	config  *config.Game
 	textSrc *text.GoTextFaceSource
@@ -31,12 +32,30 @@ type Canvas struct {
 	VerticalPadding float64
 }
 
+type Menu struct {
+	// Width of the Canvas
+	Width float64
+	// Height of the Canvas
+	Height float64
+	// Horizontal Padding - Global
+	HorizontalPadding float64
+	// Vertival Padding - Global
+	VerticalPadding float64
+}
+
 // NewBattleGUI initializes a new BattleGUI instance.
 func NewBattleGUI(screen *ebiten.Image, conf *config.Game, textSrc *text.GoTextFaceSource) *BattleGUI {
+	// Menu will take up 25% of the screen height, canvas will take up 75% of the screen height
 	w, h := float64(screen.Bounds().Dx()), float64(screen.Bounds().Dy())
 	c := &Canvas{
 		Width:             w,
-		Height:            h,
+		Height:            h * 0.66,
+		HorizontalPadding: w * padding,
+		VerticalPadding:   h * padding,
+	}
+	m := &Menu{
+		Width:             w,
+		Height:            h * 0.33,
 		HorizontalPadding: w * padding,
 		VerticalPadding:   h * padding,
 	}
@@ -45,6 +64,7 @@ func NewBattleGUI(screen *ebiten.Image, conf *config.Game, textSrc *text.GoTextF
 		config:  conf,
 		textSrc: textSrc,
 		canvas:  c,
+		menu:    m,
 	}
 }
 
@@ -61,6 +81,7 @@ func (b *BattleGUI) DrawBattleGUI() {
 		log.Fatal("cound not find monster image")
 	}
 	b.drawBackground(bgImage)
+	b.drawMenu()
 	b.drawBattleBoxes()
 	b.drawMonsters(mons)
 }
@@ -163,4 +184,17 @@ func (b *BattleGUI) drawBackground(bgImage *ebiten.Image) {
 	opts.Filter = ebiten.FilterLinear
 
 	b.screen.DrawImage(bgImage, opts)
+}
+
+// draw menu implements a menu using the BattleGUI.menu attribute
+// The menu is a white rectangle that takes up the portion of the screen
+// height as specified by BattleGUI.menu
+func (b *BattleGUI) drawMenu() {
+	boxImg := ebiten.NewImage(int(b.menu.Width), int(b.menu.Height))
+	boxImg.Fill(color.White)
+
+	opts := &ebiten.DrawImageOptions{}
+	opts.GeoM.Translate(0, float64(b.screen.Bounds().Dy())-b.menu.Height)
+
+	b.screen.DrawImage(boxImg, opts)
 }
