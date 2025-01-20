@@ -14,17 +14,37 @@ const padding = 0.05
 // BattleGUI handles drawing the background and status boxes
 // for a Pokémon battle scene.
 type BattleGUI struct {
+	canvas  *Canvas
 	screen  *ebiten.Image
 	config  *config.Game
 	textSrc *text.GoTextFaceSource
 }
 
+type Canvas struct {
+	// Width of the Canvas
+	Width float64
+	// Height of the Canvas
+	Height float64
+	// Horizontal Padding - Global
+	HorizontalPadding float64
+	// Vertival Padding - Global
+	VerticalPadding float64
+}
+
 // NewBattleGUI initializes a new BattleGUI instance.
 func NewBattleGUI(screen *ebiten.Image, conf *config.Game, textSrc *text.GoTextFaceSource) *BattleGUI {
+	w, h := float64(screen.Bounds().Dx()), float64(screen.Bounds().Dy())
+	c := &Canvas{
+		Width:             w,
+		Height:            h,
+		HorizontalPadding: w * padding,
+		VerticalPadding:   h * padding,
+	}
 	return &BattleGUI{
 		screen:  screen,
 		config:  conf,
 		textSrc: textSrc,
+		canvas:  c,
 	}
 }
 
@@ -47,39 +67,40 @@ func (b *BattleGUI) DrawBattleGUI() {
 
 // drawMonsters draws pokemon adjacent to the respective entity's battle box
 func (b *BattleGUI) drawMonsters(mons *ebiten.Image) {
-	// TODO - abstract these calculations
-	screenW, screenH := float64(b.screen.Bounds().Dx()), float64(b.screen.Bounds().Dy())
-	hPad := screenW * padding
-	vPad := screenH * padding
 
-	// pMon
+	// pMon - flip then draw
 	monH := mons.Bounds().Dy()
+	monW := mons.Bounds().Dx()
 	pOpts := &ebiten.DrawImageOptions{}
 	pOpts.GeoM.Scale(-1, 1)
-	// TODO - what the fuck?????
-	pOpts.GeoM.Translate(hPad+50, screenH-float64(monH)-vPad)
+	pOpts.GeoM.Scale(2, 2)
+	pOpts.GeoM.Translate(float64(monW)+(2*b.canvas.HorizontalPadding), b.canvas.Height-float64(monH)-2*b.canvas.VerticalPadding)
 	b.screen.DrawImage(mons, pOpts)
 
 	// oMon
-	// TODO - inverse calculations
+	oOpts := &ebiten.DrawImageOptions{}
+	oOpts.GeoM.Scale(2, 2)
+	oOpts.GeoM.Translate(b.canvas.Width-2*b.canvas.HorizontalPadding-float64(monW), 0-b.canvas.VerticalPadding)
+	// You want to see why these calculations are weird?
+	// Fuck around and find out... uncomment this code.
+	// blackColor := color.RGBA{0, 0, 0, 255} // Black with full opacity
+	// mons.Fill(blackColor)
+	b.screen.DrawImage(mons, oOpts)
 }
 
 // drawBattleBoxes draws the boxes for the opponent’s Pokémon and the player’s Pokémon.
 func (b *BattleGUI) drawBattleBoxes() {
-	screenW, screenH := float64(b.screen.Bounds().Dx()), float64(b.screen.Bounds().Dy())
-	hPad := screenW * padding
-	vPad := screenH * padding
-	boxW := int(screenW * 0.30)
-	boxH := int(screenH * 0.15)
+	boxW := b.canvas.Width * 0.30
+	boxH := b.canvas.Height * 0.15
 
 	// Opponent box
 	oppOpts := &ebiten.DrawImageOptions{}
-	oppOpts.GeoM.Translate(hPad, vPad)
+	oppOpts.GeoM.Translate(b.canvas.HorizontalPadding, b.canvas.VerticalPadding)
 	b.drawBox("bulbasaur", boxW, boxH, oppOpts)
 
 	// Player box
-	playerX := screenW - float64(boxW) - hPad
-	playerY := screenH - float64(boxH) - vPad
+	playerX := b.canvas.Width - float64(boxW) - b.canvas.HorizontalPadding
+	playerY := b.canvas.Height - float64(boxH) - b.canvas.VerticalPadding
 	playerOpts := &ebiten.DrawImageOptions{}
 	playerOpts.GeoM.Translate(playerX, playerY)
 	b.drawBox("bulbasaur", boxW, boxH, playerOpts)
@@ -87,8 +108,8 @@ func (b *BattleGUI) drawBattleBoxes() {
 
 // drawBox creates and draws a single box containing a Pokémon’s name,
 // health bar, and HP numbers.
-func (b *BattleGUI) drawBox(name string, width, height int, opts *ebiten.DrawImageOptions) {
-	boxImg := ebiten.NewImage(width, height)
+func (b *BattleGUI) drawBox(name string, width, height float64, opts *ebiten.DrawImageOptions) {
+	boxImg := ebiten.NewImage(int(width), int(height))
 	boxImg.Fill(color.White)
 
 	// Draw Pokémon name
@@ -98,14 +119,14 @@ func (b *BattleGUI) drawBox(name string, width, height int, opts *ebiten.DrawIma
 	text.Draw(boxImg, name, &text.GoTextFace{Source: b.textSrc, Size: 10}, nameOpts)
 
 	// Draw health bar
-	barW := float64(width) * 0.70
-	barH := float64(height) * 0.10
+	barW := width * 0.70
+	barH := height * 0.10
 	healthBar := ebiten.NewImage(int(barW), int(barH))
 	healthBar.Fill(color.RGBA{0x00, 0xff, 0x00, 0xff}) // Green
 
 	healthOpts := &ebiten.DrawImageOptions{}
-	barY := float64(height) - barH - float64(height)*padding
-	healthOpts.GeoM.Translate(float64(width)*padding, barY)
+	barY := height - barH - height*padding
+	healthOpts.GeoM.Translate(width*padding, barY)
 	boxImg.DrawImage(healthBar, healthOpts)
 
 	// Draw HP text
@@ -123,11 +144,10 @@ func (b *BattleGUI) drawBox(name string, width, height int, opts *ebiten.DrawIma
 func (b *BattleGUI) drawBackground(bgImage *ebiten.Image) {
 	b.screen.Fill(color.White)
 
-	screenW, screenH := float64(b.screen.Bounds().Dx()), float64(b.screen.Bounds().Dy())
 	bgW, bgH := float64(bgImage.Bounds().Dx()), float64(bgImage.Bounds().Dy())
 
-	scaleW := screenW / bgW
-	scaleH := screenH / bgH
+	scaleW := b.canvas.Width / bgW
+	scaleH := b.canvas.Height / bgH
 
 	// Choose the larger scale to fill the screen.
 	scale := scaleW
@@ -139,7 +159,7 @@ func (b *BattleGUI) drawBackground(bgImage *ebiten.Image) {
 	// Start from image center
 	opts.GeoM.Translate(-bgW/2, -bgH/2)
 	opts.GeoM.Scale(scale, scale)
-	opts.GeoM.Translate(screenW/2, screenH/2)
+	opts.GeoM.Translate(b.canvas.Width/2, b.canvas.Height/2)
 	opts.Filter = ebiten.FilterLinear
 
 	b.screen.DrawImage(bgImage, opts)
