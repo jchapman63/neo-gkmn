@@ -7,18 +7,24 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/jchapman63/neo-gkmn/client/config"
+	"github.com/jchapman63/neo-gkmn/client/util"
 )
 
 const padding = 0.05
 
+type BattleGUIConfig struct {
+	Window  *config.Window
+	Sprites *config.Sprites
+	textSrc *text.GoTextFaceSource
+	Buttons []*util.BtnImg
+	canvas  *Canvas
+	menu    *Menu
+}
+
 // BattleGUI handles drawing the background and status boxes
 // for a Pokémon battle scene.
 type BattleGUI struct {
-	canvas  *Canvas
-	menu    *Menu
-	screen  *ebiten.Image
-	config  *config.Game
-	textSrc *text.GoTextFaceSource
+	Config *BattleGUIConfig
 }
 
 type Canvas struct {
@@ -44,9 +50,9 @@ type Menu struct {
 }
 
 // NewBattleGUI initializes a new BattleGUI instance.
-func NewBattleGUI(screen *ebiten.Image, conf *config.Game, textSrc *text.GoTextFaceSource) *BattleGUI {
+func NewBattleGUI(window *config.Window, sprites *config.Sprites, textSrc *text.GoTextFaceSource) *BattleGUI {
 	// Menu will take up 25% of the screen height, canvas will take up 75% of the screen height
-	w, h := float64(screen.Bounds().Dx()), float64(screen.Bounds().Dy())
+	w, h := float64(window.Width), float64(window.Height)
 	c := &Canvas{
 		Width:             w,
 		Height:            h * 0.66,
@@ -59,35 +65,38 @@ func NewBattleGUI(screen *ebiten.Image, conf *config.Game, textSrc *text.GoTextF
 		HorizontalPadding: w * padding,
 		VerticalPadding:   h * padding,
 	}
-	return &BattleGUI{
-		screen:  screen,
-		config:  conf,
+	config := &BattleGUIConfig{
+		Window:  window,
+		Sprites: sprites,
 		textSrc: textSrc,
 		canvas:  c,
 		menu:    m,
+	}
+	return &BattleGUI{
+		Config: config,
 	}
 }
 
 // DrawBattleGUI is the primary entry point to draw
 // the background and all UI boxes for the battle scene.
-func (b *BattleGUI) DrawBattleGUI() {
-	bgImage, ok := b.config.GUI.Sprites["temp-bkg.png"]
+func (b *BattleGUI) DrawBattleGUI(screen *ebiten.Image) {
+	bgImage, ok := b.Config.Sprites.GUI.Sprites["temp-bkg.png"]
 	if !ok {
 		log.Fatal("could not find background image")
 	}
 	// TODO - turn into iterable object of current monsters in battle
-	mons, ok := b.config.Monsters.Sprites["bulbasaur.png"]
+	mons, ok := b.Config.Sprites.Monsters.Sprites["bulbasaur.png"]
 	if !ok {
 		log.Fatal("cound not find monster image")
 	}
-	b.drawBackground(bgImage)
-	b.drawMenu()
-	b.drawBattleBoxes()
-	b.drawMonsters(mons)
+	b.drawBackground(screen, bgImage)
+	b.drawMenu(screen)
+	b.drawBattleBoxes(screen)
+	b.drawMonsters(screen, mons)
 }
 
 // drawMonsters draws pokemon adjacent to the respective entity's battle box
-func (b *BattleGUI) drawMonsters(mons *ebiten.Image) {
+func (b *BattleGUI) drawMonsters(screen *ebiten.Image, mons *ebiten.Image) {
 
 	// pMon - flip then draw
 	monH := mons.Bounds().Dy()
@@ -95,41 +104,41 @@ func (b *BattleGUI) drawMonsters(mons *ebiten.Image) {
 	pOpts := &ebiten.DrawImageOptions{}
 	pOpts.GeoM.Scale(-1, 1)
 	pOpts.GeoM.Scale(2, 2)
-	pOpts.GeoM.Translate(float64(monW)+(2*b.canvas.HorizontalPadding), b.canvas.Height-float64(monH)-2*b.canvas.VerticalPadding)
-	b.screen.DrawImage(mons, pOpts)
+	pOpts.GeoM.Translate(float64(monW)+(2*b.Config.canvas.HorizontalPadding), b.Config.canvas.Height-float64(monH)-2*b.Config.canvas.VerticalPadding)
+	screen.DrawImage(mons, pOpts)
 
 	// oMon
 	oOpts := &ebiten.DrawImageOptions{}
 	oOpts.GeoM.Scale(2, 2)
-	oOpts.GeoM.Translate(b.canvas.Width-2*b.canvas.HorizontalPadding-float64(monW), 0-b.canvas.VerticalPadding)
+	oOpts.GeoM.Translate(b.Config.canvas.Width-2*b.Config.canvas.HorizontalPadding-float64(monW), 0-b.Config.canvas.VerticalPadding)
 	// You want to see why these calculations are weird?
 	// Fuck around and find out... uncomment this code.
 	// blackColor := color.RGBA{0, 0, 0, 255} // Black with full opacity
 	// mons.Fill(blackColor)
-	b.screen.DrawImage(mons, oOpts)
+	screen.DrawImage(mons, oOpts)
 }
 
 // drawBattleBoxes draws the boxes for the opponent’s Pokémon and the player’s Pokémon.
-func (b *BattleGUI) drawBattleBoxes() {
-	boxW := b.canvas.Width * 0.30
-	boxH := b.canvas.Height * 0.15
+func (b *BattleGUI) drawBattleBoxes(screen *ebiten.Image) {
+	boxW := b.Config.canvas.Width * 0.30
+	boxH := b.Config.canvas.Height * 0.15
 
 	// Opponent box
 	oppOpts := &ebiten.DrawImageOptions{}
-	oppOpts.GeoM.Translate(b.canvas.HorizontalPadding, b.canvas.VerticalPadding)
-	b.drawBattleBox("bulbasaur", boxW, boxH, oppOpts)
+	oppOpts.GeoM.Translate(b.Config.canvas.HorizontalPadding, b.Config.canvas.VerticalPadding)
+	b.drawBattleBox(screen, "bulbasaur", boxW, boxH, oppOpts)
 
 	// Player box
-	playerX := b.canvas.Width - float64(boxW) - b.canvas.HorizontalPadding
-	playerY := b.canvas.Height - float64(boxH) - b.canvas.VerticalPadding
+	playerX := b.Config.canvas.Width - float64(boxW) - b.Config.canvas.HorizontalPadding
+	playerY := b.Config.canvas.Height - float64(boxH) - b.Config.canvas.VerticalPadding
 	playerOpts := &ebiten.DrawImageOptions{}
 	playerOpts.GeoM.Translate(playerX, playerY)
-	b.drawBattleBox("bulbasaur", boxW, boxH, playerOpts)
+	b.drawBattleBox(screen, "bulbasaur", boxW, boxH, playerOpts)
 }
 
 // drawBox creates and draws a single box containing a Pokémon’s name,
 // health bar, and HP numbers.
-func (b *BattleGUI) drawBattleBox(name string, width, height float64, opts *ebiten.DrawImageOptions) {
+func (b *BattleGUI) drawBattleBox(screen *ebiten.Image, name string, width, height float64, opts *ebiten.DrawImageOptions) {
 	boxImg := ebiten.NewImage(int(width), int(height))
 	boxImg.Fill(color.White)
 
@@ -137,7 +146,7 @@ func (b *BattleGUI) drawBattleBox(name string, width, height float64, opts *ebit
 	nameOpts := &text.DrawOptions{}
 	nameOpts.ColorScale.Scale(0, 0, 0, 1)
 	nameOpts.GeoM.Translate(float64(width)*padding, float64(height)*padding)
-	text.Draw(boxImg, name, &text.GoTextFace{Source: b.textSrc, Size: 10}, nameOpts)
+	text.Draw(boxImg, name, &text.GoTextFace{Source: b.Config.textSrc, Size: 10}, nameOpts)
 
 	// Draw health bar
 	barW := width * 0.70
@@ -154,21 +163,21 @@ func (b *BattleGUI) drawBattleBox(name string, width, height float64, opts *ebit
 	hpOpts := &text.DrawOptions{}
 	hpOpts.ColorScale.Scale(0, 0, 0, 1)
 	hpOpts.GeoM.Translate(float64(width)*padding, barY-barH-10)
-	text.Draw(boxImg, "25/25", &text.GoTextFace{Source: b.textSrc, Size: 10}, hpOpts)
+	text.Draw(boxImg, "25/25", &text.GoTextFace{Source: b.Config.textSrc, Size: 10}, hpOpts)
 
 	// Finally draw the box onto the screen
-	b.screen.DrawImage(boxImg, opts)
+	screen.DrawImage(boxImg, opts)
 }
 
 // drawBackground fills the entire screen with white and then draws the
 // background image scaled to fill the screen area.
-func (b *BattleGUI) drawBackground(bgImage *ebiten.Image) {
-	b.screen.Fill(color.White)
+func (b *BattleGUI) drawBackground(screen *ebiten.Image, bgImage *ebiten.Image) {
+	screen.Fill(color.White)
 
 	bgW, bgH := float64(bgImage.Bounds().Dx()), float64(bgImage.Bounds().Dy())
 
-	scaleW := b.canvas.Width / bgW
-	scaleH := b.canvas.Height / bgH
+	scaleW := b.Config.canvas.Width / bgW
+	scaleH := b.Config.canvas.Height / bgH
 
 	// Choose the larger scale to fill the screen.
 	scale := scaleW
@@ -180,37 +189,39 @@ func (b *BattleGUI) drawBackground(bgImage *ebiten.Image) {
 	// Start from image center
 	opts.GeoM.Translate(-bgW/2, -bgH/2)
 	opts.GeoM.Scale(scale, scale)
-	opts.GeoM.Translate(b.canvas.Width/2, b.canvas.Height/2)
+	opts.GeoM.Translate(b.Config.canvas.Width/2, b.Config.canvas.Height/2)
 	opts.Filter = ebiten.FilterLinear
 
-	b.screen.DrawImage(bgImage, opts)
+	screen.DrawImage(bgImage, opts)
 }
 
 // draw menu implements a menu using the BattleGUI.menu attribute
-// The menu is a white rectangle that takes up the portion of the screen
+// The menu is a rectangle that takes up the portion of the screen
 // height as specified by BattleGUI.menu
-func (b *BattleGUI) drawMenu() {
+func (b *BattleGUI) drawMenu(screen *ebiten.Image) {
 	// cover specified height of the screen
-	menuImg := ebiten.NewImage(int(b.menu.Width), int(b.menu.Height))
+	menuImg := ebiten.NewImage(int(b.Config.menu.Width), int(b.Config.menu.Height))
 	menuImg.Fill(color.RGBA{144, 238, 144, 255})
 	opts := &ebiten.DrawImageOptions{}
-	opts.GeoM.Translate(0, float64(b.screen.Bounds().Dy())-b.menu.Height)
+	opts.GeoM.Translate(0, float64(b.Config.Window.Height)-b.Config.menu.Height)
 
-	boxW := b.menu.Width * 0.30
-	boxH := b.menu.Height * 0.15
-	// TODO - abstract into more menu opt
-	boxImg := ebiten.NewImage(int(boxW), int(boxH))
-	boxImg.Fill(color.White)
+	// create button
+	boxW := b.Config.menu.Width * 0.30
+	boxH := b.Config.menu.Height * 0.15
+	boxImgBtn := util.NewBtnImg(ebiten.NewImage(int(boxW), int(boxH)))
+
+	// draw button
+	boxImgBtn.Img.Fill(color.White)
 	bOpts := &ebiten.DrawImageOptions{}
 	// Draw into center for now
-	bOpts.GeoM.Translate(b.menu.Width/2, b.menu.Height/2)
+	bOpts.GeoM.Translate(b.Config.menu.Width/2, b.Config.menu.Height/2)
 	// Draw inner text
-	hpOpts := &text.DrawOptions{}
-	hpOpts.ColorScale.Scale(0, 0, 0, 1)
-	text.Draw(boxImg, "Tackle", &text.GoTextFace{Source: b.textSrc, Size: 10}, hpOpts)
-	// draw box into menu
-	menuImg.DrawImage(boxImg, bOpts)
-	// draw menu onto screen
-	b.screen.DrawImage(menuImg, opts)
+	tOpts := &text.DrawOptions{}
+	tOpts.ColorScale.Scale(0, 0, 0, 1)
+	text.Draw(boxImgBtn.Img, "Tackle", &text.GoTextFace{Source: b.Config.textSrc, Size: 10}, tOpts)
 
+	// draw button into menu
+	menuImg.DrawImage(boxImgBtn.Img, bOpts)
+	// draw menu onto screen
+	screen.DrawImage(menuImg, opts)
 }

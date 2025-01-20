@@ -10,6 +10,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/jchapman63/neo-gkmn/client/config"
 	"github.com/jchapman63/neo-gkmn/client/scenes"
@@ -23,14 +24,11 @@ var mons embed.FS
 
 type Game struct {
 	Window *config.Window
-	Config *config.Game
-	GUI    *config.GUI
-	Face   *text.GoTextFaceSource
-	// Mons config.Monsters
+	Scene  *scenes.BattleGUI
 }
 
 func NewGame() (*Game, error) {
-	s, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.PressStart2P_ttf))
+	ts, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.PressStart2P_ttf))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,64 +36,80 @@ func NewGame() (*Game, error) {
 		Width:  640,
 		Height: 480,
 	}
+
+	mons, err := fetchMonsterSprites()
+	if err != nil {
+		log.Fatal(err)
+	}
+	gui, err := fetchGUISprites()
+	if err != nil {
+		log.Fatal(err)
+	}
+	sprs := &config.Sprites{
+		GUI: &config.GUI{
+			Sprites: gui,
+		},
+		Monsters: &config.Monsters{
+			Sprites: mons,
+		},
+	}
+	scn := scenes.NewBattleGUI(w, sprs, ts)
 	game := &Game{
 		Window: w,
-		Config: &config.Game{
-			GUI: &config.GUI{
-				Sprites: map[string]*ebiten.Image{},
-			},
-			Monsters: &config.Monsters{
-				Sprites: map[string]*ebiten.Image{},
-			},
-		},
-		Face: s,
-	}
-	if err := game.fetchSprites(); err != nil {
-		return nil, err
+		Scene:  scn,
 	}
 
 	return game, nil
 }
 
-// fetches sprites from local dir to build battle scene
-func (g *Game) fetchSprites() error {
+func fetchGUISprites() (map[string]*ebiten.Image, error) {
+	sprites := map[string]*ebiten.Image{}
 	// gui sprites
 	gSprit, err := gui.ReadDir("sprites/gui")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	for _, sprite := range gSprit {
 		filePath := "sprites/gui/" + sprite.Name()
 		img, _, err := ebitenutil.NewImageFromFileSystem(gui, filePath)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		g.Config.GUI.Sprites[sprite.Name()] = img
+		sprites[sprite.Name()] = img
 	}
+	return sprites, nil
+}
 
+func fetchMonsterSprites() (map[string]*ebiten.Image, error) {
+	sprites := map[string]*ebiten.Image{}
 	// monster sprites
 	mSprites, err := mons.ReadDir("sprites/monsters")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	for _, sprite := range mSprites {
 		filePath := "sprites/monsters/" + sprite.Name()
 		img, _, err := ebitenutil.NewImageFromFileSystem(mons, filePath)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		g.Config.Monsters.Sprites[sprite.Name()] = img
+		sprites[sprite.Name()] = img
+	}
+	return sprites, nil
+}
+
+func (g *Game) Update() error {
+	// check for registered button clicks
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		for _, btn := range g.Scene.Config.Buttons {
+			btn.DidClick()
+		}
 	}
 	return nil
 }
 
-func (g *Game) Update() error {
-	return nil
-}
-
 func (g *Game) Draw(screen *ebiten.Image) {
-	bGUI := scenes.NewBattleGUI(screen, g.Config, g.Face)
-	bGUI.DrawBattleGUI()
+	g.Scene.DrawBattleGUI(screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -103,7 +117,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 }
 
 func Run(game *Game) error {
-	ebiten.SetWindowSize(640, 480)
+	ebiten.SetWindowSize(game.Window.Width, game.Window.Height)
 	if err := ebiten.RunGame(game); err != nil {
 		return err
 	}

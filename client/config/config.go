@@ -9,7 +9,7 @@ type Window struct {
 	Height int
 }
 
-type Game struct {
+type Sprites struct {
 	GUI      *GUI
 	Monsters *Monsters
 }
