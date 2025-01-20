@@ -220,6 +220,9 @@ func (b *BattleGUI) drawMenu(screen *ebiten.Image) {
 	tOpts.ColorScale.Scale(0, 0, 0, 1)
 	text.Draw(boxImgBtn.Img, "Tackle", &text.GoTextFace{Source: b.Config.textSrc, Size: 10}, tOpts)
 
+	// register button
+	b.Config.Buttons = append(b.Config.Buttons, boxImgBtn)
+
 	// draw button into menu
 	menuImg.DrawImage(boxImgBtn.Img, bOpts)
 	// draw menu onto screen
