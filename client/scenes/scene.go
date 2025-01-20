@@ -117,19 +117,19 @@ func (b *BattleGUI) drawBattleBoxes() {
 	// Opponent box
 	oppOpts := &ebiten.DrawImageOptions{}
 	oppOpts.GeoM.Translate(b.canvas.HorizontalPadding, b.canvas.VerticalPadding)
-	b.drawBox("bulbasaur", boxW, boxH, oppOpts)
+	b.drawBattleBox("bulbasaur", boxW, boxH, oppOpts)
 
 	// Player box
 	playerX := b.canvas.Width - float64(boxW) - b.canvas.HorizontalPadding
 	playerY := b.canvas.Height - float64(boxH) - b.canvas.VerticalPadding
 	playerOpts := &ebiten.DrawImageOptions{}
 	playerOpts.GeoM.Translate(playerX, playerY)
-	b.drawBox("bulbasaur", boxW, boxH, playerOpts)
+	b.drawBattleBox("bulbasaur", boxW, boxH, playerOpts)
 }
 
 // drawBox creates and draws a single box containing a Pokémon’s name,
 // health bar, and HP numbers.
-func (b *BattleGUI) drawBox(name string, width, height float64, opts *ebiten.DrawImageOptions) {
+func (b *BattleGUI) drawBattleBox(name string, width, height float64, opts *ebiten.DrawImageOptions) {
 	boxImg := ebiten.NewImage(int(width), int(height))
 	boxImg.Fill(color.White)
 
@@ -190,11 +190,27 @@ func (b *BattleGUI) drawBackground(bgImage *ebiten.Image) {
 // The menu is a white rectangle that takes up the portion of the screen
 // height as specified by BattleGUI.menu
 func (b *BattleGUI) drawMenu() {
-	boxImg := ebiten.NewImage(int(b.menu.Width), int(b.menu.Height))
-	boxImg.Fill(color.White)
-
+	// cover specified height of the screen
+	menuImg := ebiten.NewImage(int(b.menu.Width), int(b.menu.Height))
+	menuImg.Fill(color.RGBA{144, 238, 144, 255})
 	opts := &ebiten.DrawImageOptions{}
 	opts.GeoM.Translate(0, float64(b.screen.Bounds().Dy())-b.menu.Height)
 
-	b.screen.DrawImage(boxImg, opts)
+	boxW := b.menu.Width * 0.30
+	boxH := b.menu.Height * 0.15
+	// TODO - abstract into more menu opt
+	boxImg := ebiten.NewImage(int(boxW), int(boxH))
+	boxImg.Fill(color.White)
+	bOpts := &ebiten.DrawImageOptions{}
+	// Draw into center for now
+	bOpts.GeoM.Translate(b.menu.Width/2, b.menu.Height/2)
+	// Draw inner text
+	hpOpts := &text.DrawOptions{}
+	hpOpts.ColorScale.Scale(0, 0, 0, 1)
+	text.Draw(boxImg, "Tackle", &text.GoTextFace{Source: b.textSrc, Size: 10}, hpOpts)
+	// draw box into menu
+	menuImg.DrawImage(boxImg, bOpts)
+	// draw menu onto screen
+	b.screen.DrawImage(menuImg, opts)
+
 }
