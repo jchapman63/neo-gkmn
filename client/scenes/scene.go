@@ -208,17 +208,13 @@ func (b *BattleGUI) drawMenu(screen *ebiten.Image) {
 	// create button
 	boxW := b.Config.menu.Width * 0.30
 	boxH := b.Config.menu.Height * 0.15
-	boxImgBtn := util.NewBtnImg(ebiten.NewImage(int(boxW), int(boxH)))
-
-	// draw button
-	boxImgBtn.Img.Fill(color.White)
-	bOpts := &ebiten.DrawImageOptions{}
-	// Draw into center for now
-	bOpts.GeoM.Translate(b.Config.menu.Width/2, b.Config.menu.Height/2)
-	// Draw inner text
-	tOpts := &text.DrawOptions{}
-	tOpts.ColorScale.Scale(0, 0, 0, 1)
-	text.Draw(boxImgBtn.Img, "Tackle", &text.GoTextFace{Source: b.Config.textSrc, Size: 10}, tOpts)
+	tx, ty := b.Config.menu.Width/2, b.Config.menu.Height/2
+	translation := &util.TPoint{
+		X: tx,
+		Y: ty,
+	}
+	font := &text.GoTextFace{Source: b.Config.textSrc, Size: 10}
+	boxImgBtn, bOpts := util.NewBtnImg(ebiten.NewImage(int(boxW), int(boxH)), translation, "Tackle", font)
 
 	// register button
 	b.Config.Buttons = append(b.Config.Buttons, boxImgBtn)

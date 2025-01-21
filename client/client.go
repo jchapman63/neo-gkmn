@@ -14,6 +14,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/jchapman63/neo-gkmn/client/config"
 	"github.com/jchapman63/neo-gkmn/client/scenes"
+	"github.com/jchapman63/neo-gkmn/client/util"
 )
 
 //go:embed sprites/gui/*.png
@@ -101,8 +102,13 @@ func fetchMonsterSprites() (map[string]*ebiten.Image, error) {
 func (g *Game) Update() error {
 	// check for registered button clicks
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		x, y := ebiten.CursorPosition()
+		pt := util.Point{
+			X: x,
+			Y: y,
+		}
 		for _, btn := range g.Scene.Config.Buttons {
-			btn.DidClick()
+			btn.DidClick(pt)
 		}
 	}
 	return nil
