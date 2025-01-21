@@ -16,6 +16,7 @@ type BtnImg struct {
 	Img         *ebiten.Image
 	Translation *TPoint
 	IsActive    bool
+	Origin      *Point
 }
 
 func NewBtnImg(img *ebiten.Image, translation *TPoint, message string, font *text.GoTextFace) (*BtnImg, *ebiten.DrawImageOptions) {
@@ -45,11 +46,16 @@ func (b *BtnImg) DidClick(pt Point) bool {
 	min := b.Img.Bounds().Min
 	max := b.Img.Bounds().Max
 
+	// TODO - solve issue where these y coordinates are based off of the Menu drawing
+	// Idea:
+	// - add full canvas context to BtnImg struct
+	// - or add pin pointed origin coordinate of where button is drawn
 	minX := float64(min.X) + b.Translation.X
 	minY := float64(min.Y) + b.Translation.Y
-
 	maxX := float64(max.X) + b.Translation.X
 	maxY := float64(max.Y) + b.Translation.Y
+
+	fmt.Printf("min: {%f,%f}, max: {%f,%f}, pt: %d\n", minX, minY, maxX, maxY, pt)
 
 	// Check if the point (x, y) is within the bounds
 	if float64(pt.X) >= minX && float64(pt.X) <= maxX && float64(pt.Y) >= minY && float64(pt.Y) <= maxY {
