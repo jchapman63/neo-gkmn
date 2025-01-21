@@ -199,34 +199,34 @@ func (b *BattleGUI) drawBackground(screen *ebiten.Image, bgImage *ebiten.Image) 
 // The menu is a rectangle that takes up the portion of the screen
 // height as specified by BattleGUI.menu
 func (b *BattleGUI) drawMenu(screen *ebiten.Image) {
-	// cover specified height of the screen
+	// create menu image
 	menuImg := ebiten.NewImage(int(b.Config.menu.Width), int(b.Config.menu.Height))
 	menuImg.Fill(color.RGBA{144, 238, 144, 255})
+	// create menu image options
 	opts := &ebiten.DrawImageOptions{}
 	menuTranslateY := float64(b.Config.Window.Height) - b.Config.menu.Height
-	opts.GeoM.Translate(0, float64(b.Config.Window.Height)-b.Config.menu.Height)
+	opts.GeoM.Translate(0, menuTranslateY)
 
-	// create button
+	// create button image box
 	boxW := b.Config.menu.Width * 0.30
 	boxH := b.Config.menu.Height * 0.15
+
+	// create translation for button
 	tx, ty := b.Config.menu.Width/2, b.Config.menu.Height/2
 	translation := &util.Point{
 		X: tx,
 		Y: ty,
 	}
+	// calculate button's origin on screen (origin is top left corner)
 	origin := &util.Point{X: tx, Y: menuTranslateY + ty}
+	// create font for button
 	font := &text.GoTextFace{Source: b.Config.textSrc, Size: 10}
+	// generate new button and its drawing options
 	boxImgBtn, bOpts := util.NewBtnImg(ebiten.NewImage(int(boxW), int(boxH)), origin, translation, "Tackle", font)
-
 	// register button
 	b.Config.Buttons = append(b.Config.Buttons, boxImgBtn)
-
 	// draw button into menu
 	menuImg.DrawImage(boxImgBtn.Img, bOpts)
 	// draw menu onto screen
 	screen.DrawImage(menuImg, opts)
-
-	bo := ebiten.NewImage(int(boxW), int(boxH))
-	bo.Fill(color.RGBA{144, 238, 144, 255})
-	screen.DrawImage(bo, nil)
 }
