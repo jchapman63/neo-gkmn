@@ -104,8 +104,8 @@ func (g *Game) Update() error {
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		x, y := ebiten.CursorPosition()
 		pt := util.Point{
-			X: x,
-			Y: y,
+			X: float64(x),
+			Y: float64(y),
 		}
 		for _, btn := range g.Scene.Config.Buttons {
 			btn.DidClick(pt)

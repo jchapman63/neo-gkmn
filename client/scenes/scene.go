@@ -203,18 +203,20 @@ func (b *BattleGUI) drawMenu(screen *ebiten.Image) {
 	menuImg := ebiten.NewImage(int(b.Config.menu.Width), int(b.Config.menu.Height))
 	menuImg.Fill(color.RGBA{144, 238, 144, 255})
 	opts := &ebiten.DrawImageOptions{}
+	menuTranslateY := float64(b.Config.Window.Height) - b.Config.menu.Height
 	opts.GeoM.Translate(0, float64(b.Config.Window.Height)-b.Config.menu.Height)
 
 	// create button
 	boxW := b.Config.menu.Width * 0.30
 	boxH := b.Config.menu.Height * 0.15
 	tx, ty := b.Config.menu.Width/2, b.Config.menu.Height/2
-	translation := &util.TPoint{
+	translation := &util.Point{
 		X: tx,
 		Y: ty,
 	}
+	origin := &util.Point{X: tx, Y: menuTranslateY + ty}
 	font := &text.GoTextFace{Source: b.Config.textSrc, Size: 10}
-	boxImgBtn, bOpts := util.NewBtnImg(ebiten.NewImage(int(boxW), int(boxH)), translation, "Tackle", font)
+	boxImgBtn, bOpts := util.NewBtnImg(ebiten.NewImage(int(boxW), int(boxH)), origin, translation, "Tackle", font)
 
 	// register button
 	b.Config.Buttons = append(b.Config.Buttons, boxImgBtn)
@@ -223,4 +225,8 @@ func (b *BattleGUI) drawMenu(screen *ebiten.Image) {
 	menuImg.DrawImage(boxImgBtn.Img, bOpts)
 	// draw menu onto screen
 	screen.DrawImage(menuImg, opts)
+
+	bo := ebiten.NewImage(int(boxW), int(boxH))
+	bo.Fill(color.RGBA{144, 238, 144, 255})
+	screen.DrawImage(bo, nil)
 }
