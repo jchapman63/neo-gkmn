@@ -17,7 +17,7 @@ type BattleGUIConfig struct {
 	Sprites *config.Sprites
 	textSrc *text.GoTextFaceSource
 	Buttons []*util.BtnImg
-	canvas  *Canvas
+	canvas  *Battle
 	menu    *Menu
 }
 
@@ -27,10 +27,10 @@ type BattleGUI struct {
 	Config *BattleGUIConfig
 }
 
-type Canvas struct {
-	// Width of the Canvas
+type Battle struct {
+	// Width of the Battle
 	Width float64
-	// Height of the Canvas
+	// Height of the Battle
 	Height float64
 	// Horizontal Padding - Global
 	HorizontalPadding float64
@@ -39,9 +39,9 @@ type Canvas struct {
 }
 
 type Menu struct {
-	// Width of the Canvas
+	// Width of the Battle
 	Width float64
-	// Height of the Canvas
+	// Height of the Battle
 	Height float64
 	// Horizontal Padding - Global
 	HorizontalPadding float64
@@ -53,7 +53,7 @@ type Menu struct {
 func NewBattleGUI(window *config.Window, sprites *config.Sprites, textSrc *text.GoTextFaceSource) *BattleGUI {
 	// Menu will take up 25% of the screen height, canvas will take up 75% of the screen height
 	w, h := float64(window.Width), float64(window.Height)
-	c := &Canvas{
+	c := &Battle{
 		Width:             w,
 		Height:            h * 0.66,
 		HorizontalPadding: w * padding,
