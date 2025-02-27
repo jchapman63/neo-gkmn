@@ -19,12 +19,11 @@ type BtnImg struct {
 	Translation *Point
 }
 
-func NewBtnImg(img *ebiten.Image, origin *Point, translation *Point, message string, font *text.GoTextFace) (*BtnImg, *ebiten.DrawImageOptions) {
+func NewBtnImg(img *ebiten.Image, translation *Point, message string, font *text.GoTextFace) (*BtnImg, *ebiten.DrawImageOptions) {
 	// draw button
 	img.Fill(color.White)
 	bOpts := &ebiten.DrawImageOptions{}
-	// Draw into center for now
-	bOpts.GeoM.Translate(translation.X, translation.Y)
+	// bOpts.GeoM.Translate(translation.X, translation.Y)
 	// Draw inner text
 	tOpts := &text.DrawOptions{}
 	tOpts.ColorScale.Scale(0, 0, 0, 1)
@@ -33,7 +32,6 @@ func NewBtnImg(img *ebiten.Image, origin *Point, translation *Point, message str
 	return &BtnImg{
 		Translation: translation,
 		Img:         img,
-		Origin:      origin,
 	}, bOpts
 }
 

@@ -13,6 +13,7 @@ type Sprites struct {
 	GUI      *GUI
 	Monsters *Monsters
 }
+
 type GUI struct {
 	Sprites map[string]*ebiten.Image
 }

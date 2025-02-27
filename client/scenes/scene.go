@@ -180,10 +180,7 @@ func (b *BattleGUI) drawBackground(screen *ebiten.Image, bgImage *ebiten.Image) 
 	scaleH := b.Config.canvas.Height / bgH
 
 	// Choose the larger scale to fill the screen.
-	scale := scaleW
-	if scale < scaleH {
-		scale = scaleH
-	}
+	scale := max(scaleW, scaleH)
 
 	opts := &ebiten.DrawImageOptions{}
 	// Start from image center
@@ -218,11 +215,10 @@ func (b *BattleGUI) drawMenu(screen *ebiten.Image) {
 		Y: ty,
 	}
 	// calculate button's origin on screen (origin is top left corner)
-	origin := &util.Point{X: tx, Y: menuTranslateY + ty}
 	// create font for button
 	font := &text.GoTextFace{Source: b.Config.textSrc, Size: 10}
 	// generate new button and its drawing options
-	boxImgBtn, bOpts := util.NewBtnImg(ebiten.NewImage(int(boxW), int(boxH)), origin, translation, "Tackle", font)
+	boxImgBtn, bOpts := util.NewBtnImg(ebiten.NewImage(int(boxW), int(boxH)), translation, "Tackle", font)
 	// register button
 	b.Config.Buttons = append(b.Config.Buttons, boxImgBtn)
 	// draw button into menu

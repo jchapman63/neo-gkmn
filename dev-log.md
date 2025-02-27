@@ -105,3 +105,13 @@ on rectangle size when calculating screenWidth-rectangleWidth.
 
 #### 1-2-25
 I made a simple design for the full battle box including name, health numbers, and health status bar.  The above todo still applies.
+
+#### 2-25-25
+I need to work on the placement of buttons in the action menu.  The math makes no sense right now. It looks like I placed the origin at the center and then translated the button to the center?  Very confusing and needs reworked.
+
+#### 2-27-25
+Button placement is difficult to figure out because the way things are set up right now is very messy.
+I should not have to make the button aware of its origin relative to the whole screen.  For example,
+the button is tied to the menu's origin.  Clicks are relative to the canvas as a whole. I need to create a register for a clickable action menu.
+
+TODO - Continue working on refactoring menu into its own module.
