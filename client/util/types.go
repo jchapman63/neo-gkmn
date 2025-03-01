@@ -8,6 +8,6 @@ type Point struct {
 }
 
 type Dimensions struct {
-	Width  float64
-	Height float64
+	Width  int
+	Height int
 }
